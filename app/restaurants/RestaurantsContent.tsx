@@ -22,6 +22,11 @@ export default function RestaurantsContent() {
       try {
         const data = await fetchRestaurants(parseInt(buildingId))
         setRestaurants(data)
+
+        // Если ресторан всего один, автоматически переходим к меню
+        if (data.length === 1) {
+          router.push(`/menu?restaurantId=${data[0].id}`)
+        }
       } catch (error) {
         console.error('Error loading restaurants:', error)
       } finally {

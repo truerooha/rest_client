@@ -26,6 +26,18 @@ export default function Home() {
         if (userData?.building_id) {
           // Пользователь уже выбрал здание, перенаправляем на рестораны
           router.push(`/restaurants?buildingId=${userData.building_id}`)
+          return
+        }
+
+        // Автоматически выбираем здание "Коворкинг"
+        const coworkingBuilding = buildingsData.find(b => b.name === 'Коворкинг')
+        if (coworkingBuilding) {
+          // Устанавливаем здание для пользователя автоматически
+          await updateUserBuilding(user.id, coworkingBuilding.id)
+          router.push(`/restaurants?buildingId=${coworkingBuilding.id}`)
+        } else {
+          // Если "Коворкинг" не найден, показываем список зданий
+          console.warn('Здание "Коворкинг" не найдено, показываем список')
         }
       } catch (error) {
         console.error('Error loading data:', error)
