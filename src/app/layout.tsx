@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import './globals.css'
+import { AppProvider } from '../store/AppContext'
 
 export const metadata = {
   title: 'Обед в Офис — Mini App',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>
-        <main className="page">{children}</main>
+        <AppProvider>
+          <main className="page">{children}</main>
+        </AppProvider>
       </body>
     </html>
   )

@@ -112,3 +112,43 @@ export async function fetchDeliverySlots(apiUrl: string): Promise<DeliverySlot[]
   }
   return parsed.data
 }
+
+type CreateOrderPayload = {
+  userId: number
+  restaurantId: number
+  buildingId: number
+  items: Array<{
+    id: number
+    name: string
+    price: number
+    quantity: number
+  }>
+  totalPrice: number
+  deliverySlot: string
+}
+
+type CreateOrderResponse = {
+  id: number
+  status: string
+  message?: string
+}
+
+export async function createOrder(
+  apiUrl: string,
+  payload: CreateOrderPayload,
+): Promise<CreateOrderResponse> {
+  const res = await fetch(`${apiUrl}/api/orders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+  
+  const json = (await res.json()) as ApiResponse<CreateOrderResponse>
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error ?? 'order_create_failed')
+  }
+  
+  return json.data
+}

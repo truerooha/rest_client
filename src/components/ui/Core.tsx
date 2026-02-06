@@ -36,30 +36,6 @@ export function Card({ className, children }: CommonProps) {
   return <div className={cx('card', className)}>{children}</div>
 }
 
-export function PrimaryButton({
-  className,
-  children,
-  ...props
-}: CommonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button {...props} className={cx('btn', className)}>
-      {children}
-    </button>
-  )
-}
-
-export function SecondaryButton({
-  className,
-  children,
-  ...props
-}: CommonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button {...props} className={cx('btn-secondary', className)}>
-      {children}
-    </button>
-  )
-}
-
 export function Chip({
   active,
   className,
@@ -77,8 +53,16 @@ export function Chip({
   )
 }
 
-export function Badge({ className, children }: CommonProps) {
-  return <span className={cx('badge', className)}>{children}</span>
+export function Badge({
+  className,
+  children,
+  ...props
+}: CommonProps & React.HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span {...props} className={cx('badge', className)}>
+      {children}
+    </span>
+  )
 }
 
 export function Stepper({

@@ -1,0 +1,104 @@
+'use client'
+
+import type { CartItem } from '../../lib/types'
+import { Card, Stepper, PrimaryButton, SecondaryButton } from '../ui'
+import { ORDER_CONFIG } from '../../lib/config'
+import { calculateOrderTotals, formatPrice as formatPriceUtil } from '../../lib/order-utils'
+
+type CartSummaryProps = {
+  cart: CartItem[]
+  onUpdateQty: (itemId: number, delta: number) => void
+  onEdit: () => void
+  onCancel: () => void
+  onCheckout?: () => void
+  isCancelAvailable: boolean
+  participantCount?: number
+}
+
+export function CartSummary({
+  cart,
+  onUpdateQty,
+  onEdit,
+  onCancel,
+  onCheckout,
+  isCancelAvailable,
+  participantCount = 1,
+}: CartSummaryProps) {
+  const calculation = calculateOrderTotals(cart, participantCount)
+  const formatPrice = formatPriceUtil
+  
+  if (cart.length === 0) {
+    return (
+      <Card>
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🛒</div>
+          <div style={{ fontWeight: 600 }}>Корзина пуста</div>
+          <div className="muted" style={{ marginTop: 4 }}>
+            Добавьте блюда из меню
+          </div>
+        </div>
+      </Card>
+    )
+  }
+  
+  return (
+    <Card>
+      <div className="order-summary">
+        {cart.map((entry) => (
+          <div key={entry.item.id} className="cart-item">
+            <div className="product-image">{entry.item.emoji}</div>
+            <div>
+              <div style={{ fontWeight: 600 }}>{entry.item.name}</div>
+              <div className="muted">{entry.item.unit}</div>
+              <div className="price">{formatPrice(entry.item.price)}</div>
+            </div>
+            <Stepper
+              value={entry.qty}
+              onDecrease={() => onUpdateQty(entry.item.id, -1)}
+              onIncrease={() => onUpdateQty(entry.item.id, 1)}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="divider" />
+      <div className="order-summary">
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="order-muted">Сумма</span>
+          <strong>{formatPrice(calculation.subtotal)}</strong>
+        </div>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="order-muted">
+            Скидка {ORDER_CONFIG.discountPercent}%
+          </span>
+          <strong>-{formatPrice(calculation.discount)}</strong>
+        </div>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="order-muted">К оплате</span>
+          <strong>{formatPrice(calculation.total)}</strong>
+        </div>
+      </div>
+      <div className="divider" />
+      <div className="order-muted">
+        Отмена доступна до {ORDER_CONFIG.cancelDeadline}
+      </div>
+      {onCheckout ? (
+        <PrimaryButton
+          type="button"
+          onClick={onCheckout}
+          disabled={!isCancelAvailable}
+          style={{ marginTop: 12 }}
+        >
+          Оформить заказ
+        </PrimaryButton>
+      ) : null}
+      <div className="order-actions" style={{ marginTop: onCheckout ? 8 : 0 }}>
+        <SecondaryButton type="button" disabled={!isCancelAvailable} onClick={onEdit}>
+          Редактировать
+        </SecondaryButton>
+        <SecondaryButton type="button" disabled={!isCancelAvailable} onClick={onCancel}>
+          Очистить
+        </SecondaryButton>
+      </div>
+    </Card>
+  )
+}

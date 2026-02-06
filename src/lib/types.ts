@@ -54,3 +54,17 @@ export type DeliverySlot = {
   deadline: string
   isAvailable: boolean
 }
+
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+
+export type Order = {
+  id: string
+  userId: number
+  restaurantId: number
+  buildingId: number
+  items: CartItem[]
+  totalPrice: number
+  deliverySlot: string
+  status: OrderStatus
+  createdAt: string
+}

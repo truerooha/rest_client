@@ -1,46 +1,38 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { AppBar, Badge } from '../components/ui'
+import { SlotScreen } from '../components/screens/SlotScreen'
+import { MenuScreen } from '../components/screens/MenuScreen'
+import { OrderScreen } from '../components/screens/OrderScreen'
+import { TrackingScreen } from '../components/screens/TrackingScreen'
+import { HistoryScreen } from '../components/screens/HistoryScreen'
+import { useApp } from '../store/AppContext'
 import {
-  AppBar,
-  Badge,
-  Card,
-  PrimaryButton,
-  SecondaryButton,
-  Section,
-  Stepper,
-} from '../components/ui'
-import { mockBuildings, mockMenuItems, mockRestaurants } from '../lib/mockData'
-import {
-  createLocalAuth,
   initTelegramWebApp,
   readTelegramAuth,
+  createLocalAuth,
 } from '../lib/telegram'
-import { apiUrlSchema, testUserInputSchema } from '../lib/validators'
-import { CartItem, DeliverySlot, MenuItem, Restaurant, TgAuth, TgUser } from '../lib/types'
 import {
   fetchBuildings,
-  fetchDeliverySlots,
-  fetchMenu,
   fetchRestaurants,
+  fetchMenu,
+  fetchDeliverySlots,
 } from '../lib/api'
+import { mockBuildings, mockMenuItems, mockRestaurants } from '../lib/mockData'
+import { getTestDataForBuilding, testBuildings, testMenuItems, testRestaurants } from '../lib/testData'
 import { ORDER_CONFIG } from '../lib/config'
-import {
-  getTestDataForBuilding,
-  testBuildings,
-  testMenuItems,
-  testRestaurants,
-} from '../lib/testData'
+import type { TgUser } from '../lib/types'
+import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
 
 const DEFAULT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'
 
-type ApiState = 'idle' | 'loading' | 'ok' | 'error'
-type Screen = 'slot' | 'menu' | 'order' | 'test'
+type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
 export default function HomePage() {
   const [activeScreen, setActiveScreen] = useState<Screen>('slot')
-  const [auth, setAuth] = useState<TgAuth | null>(null)
-  const [authError, setAuthError] = useState<string | null>(null)
+  const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL)
+  
   const [testInput, setTestInput] = useState({
     id: '123456',
     firstName: 'Ирина',
@@ -48,37 +40,37 @@ export default function HomePage() {
     username: 'test_user',
     photoUrl: '',
   })
-
-  const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL)
-  const [apiState, setApiState] = useState<ApiState>('idle')
-  const [apiError, setApiError] = useState<string | null>(null)
-  const [dataSource, setDataSource] = useState<'mock' | 'api'>('mock')
-
-  const [buildings, setBuildings] = useState(mockBuildings)
-  const [restaurants, setRestaurants] = useState(mockRestaurants)
-  const [menuItems, setMenuItems] = useState(mockMenuItems)
-
-  const [selectedBuildingId, setSelectedBuildingId] = useState<number>(
-    mockBuildings[0]?.id ?? 1,
-  )
-  const [selectedRestaurantId, setSelectedRestaurantId] = useState<number>(
-    mockRestaurants[0]?.id ?? 1,
-  )
-
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
-  const [deliverySlots, setDeliverySlots] = useState<DeliverySlot[]>(
-    ORDER_CONFIG.fallbackSlots,
-  )
-
+  const [authError, setAuthError] = useState<string | null>(null)
+  
+  const {
+    auth,
+    setAuth,
+    selectedBuildingId,
+    selectedRestaurantId,
+    buildings,
+    restaurants,
+    apiState,
+    apiError,
+    dataSource,
+    setBuildings,
+    setRestaurants,
+    setMenuItems,
+    setDeliverySlots,
+    setApiState,
+    setApiError,
+    setDataSource,
+    setSelectedBuildingId,
+    setSelectedRestaurantId,
+  } = useApp()
+  
   useEffect(() => {
     initTelegramWebApp()
     const tgAuth = readTelegramAuth()
     if (tgAuth) {
       setAuth(tgAuth)
     }
-  }, [])
-
+  }, [setAuth])
+  
   const handleTestAuth = () => {
     setAuthError(null)
     const parsed = testUserInputSchema.safeParse(testInput)
@@ -89,7 +81,7 @@ export default function HomePage() {
     const user = parsed.data as TgUser
     setAuth(createLocalAuth(user))
   }
-
+  
   const applyFallbackData = () => {
     const fallbackBuildingId = testBuildings[0]?.id ?? mockBuildings[0]?.id ?? 1
     const fallbackRestaurants =
@@ -102,7 +94,7 @@ export default function HomePage() {
     setSelectedBuildingId(fallbackBuildingId)
     setSelectedRestaurantId(fallbackRestaurants[0]?.id ?? 1)
   }
-
+  
   const handleApiLoad = async () => {
     setApiError(null)
     const urlParsed = apiUrlSchema.safeParse(apiUrl)
@@ -111,7 +103,7 @@ export default function HomePage() {
       setApiState('error')
       return
     }
-
+    
     setApiState('loading')
     try {
       const apiBuildings = await fetchBuildings(apiUrl)
@@ -119,16 +111,16 @@ export default function HomePage() {
       if (!buildingId) {
         throw new Error('no_buildings')
       }
-
+      
       const apiRestaurants = await fetchRestaurants(apiUrl, buildingId)
       const restaurantId = apiRestaurants[0]?.id ?? 0
       if (!restaurantId) {
         throw new Error('no_restaurants')
       }
-
+      
       const apiSlots = await fetchDeliverySlots(apiUrl)
       const apiMenu = await fetchMenu(apiUrl, restaurantId)
-
+      
       if (apiMenu.length === 0) {
         const fallback = getTestDataForBuilding(buildingId)
         if (fallback.menuItems.length === 0) {
@@ -142,10 +134,10 @@ export default function HomePage() {
         setSelectedRestaurantId(fallback.restaurants[0]?.id ?? restaurantId)
         setDeliverySlots(apiSlots.length > 0 ? apiSlots : ORDER_CONFIG.fallbackSlots)
         setDataSource('api')
-        setApiState('ok')
+        setApiState('success')
         return
       }
-
+      
       setBuildings(apiBuildings)
       setRestaurants(apiRestaurants)
       setMenuItems(apiMenu)
@@ -153,7 +145,7 @@ export default function HomePage() {
       setSelectedBuildingId(buildingId)
       setSelectedRestaurantId(restaurantId)
       setDataSource('api')
-      setApiState('ok')
+      setApiState('success')
     } catch (_error) {
       setApiError('Не удалось загрузить данные, использую тестовые данные')
       setDataSource('mock')
@@ -162,126 +154,48 @@ export default function HomePage() {
       setApiState('error')
     }
   }
-
+  
   const handleMockReset = () => {
     setDataSource('mock')
     applyFallbackData()
     setApiState('idle')
     setApiError(null)
   }
-
+  
   useEffect(() => {
     handleApiLoad().catch(() => undefined)
   }, [])
-
+  
   const selectedBuilding = useMemo(
     () => buildings.find((building) => building.id === selectedBuildingId),
     [buildings, selectedBuildingId],
   )
-
-  const selectedRestaurant = useMemo<Restaurant | undefined>(() => {
-    return restaurants.find(
-      (restaurant) => restaurant.id === selectedRestaurantId,
-    )
-  }, [restaurants, selectedRestaurantId])
-
-  const activeMenuItems = useMemo<MenuItem[]>(
-    () => menuItems.filter((item) => item.restaurantId === selectedRestaurantId),
-    [menuItems, selectedRestaurantId],
+  
+  const selectedRestaurant = useMemo(
+    () => restaurants.find((restaurant) => restaurant.id === selectedRestaurantId),
+    [restaurants, selectedRestaurantId],
   )
-
-  const menuByCategory = useMemo(() => {
-    return activeMenuItems.reduce<Record<string, MenuItem[]>>((acc, item) => {
-      const category = item.category || 'Другое'
-      if (!acc[category]) {
-        acc[category] = []
-      }
-      acc[category] = [...acc[category], item]
-      return acc
-    }, {})
-  }, [activeMenuItems])
-
-  const cartTotal = useMemo(() => {
-    return cart.reduce((sum, entry) => sum + entry.item.price * entry.qty, 0)
-  }, [cart])
-
-  const discountAmount = useMemo(() => {
-    return Math.round((cartTotal * ORDER_CONFIG.discountPercent) / 100)
-  }, [cartTotal])
-
-  const totalWithDiscount = useMemo(() => {
-    return Math.max(cartTotal - discountAmount, 0)
-  }, [cartTotal, discountAmount])
-
-  const addToCart = (item: MenuItem) => {
-    setCart((prev) => {
-      const existing = prev.find((entry) => entry.item.id === item.id)
-      if (existing) {
-        return prev.map((entry) =>
-          entry.item.id === item.id
-            ? { ...entry, qty: entry.qty + 1 }
-            : entry,
-        )
-      }
-      return [...prev, { item, qty: 1 }]
-    })
-  }
-
-  const updateQty = (itemId: number, delta: number) => {
-    setCart((prev) => {
-      const updated = prev
-        .map((entry) =>
-          entry.item.id === itemId
-            ? { ...entry, qty: entry.qty + delta }
-            : entry,
-        )
-        .filter((entry) => entry.qty > 0)
-      return updated
-    })
-  }
-
-  const handleCancelOrder = () => {
-    if (!isCancelAvailable) return
-    setCart([])
-  }
-
-  const handleSelectSlot = (slotId: string, enabled: boolean) => {
-    if (!enabled) return
-    setSelectedSlot(slotId)
-  }
-
-  const formatPrice = (price: number) => `${price} ₽`
+  
   const authLabel = auth
     ? auth.source === 'telegram'
       ? 'Telegram'
       : 'Локальный тест'
     : 'Нет данных'
-
-  const isCancelAvailable = (() => {
-    const [hours, minutes] = ORDER_CONFIG.cancelDeadline.split(':').map(Number)
-    const now = new Date()
-    const deadline = new Date()
-    deadline.setHours(hours, minutes, 0, 0)
-    return now.getTime() <= deadline.getTime()
-  })()
-
-  const orderSlotLabel = selectedSlot
-    ? `Доставка в ${selectedSlot}`
-    : 'Слот не выбран'
-
+  
   return (
     <>
       <AppBar
         title="Обед в Офис"
         right={<Badge>{dataSource === 'api' ? 'API' : 'Test'}</Badge>}
       />
-
+      
       <div className="tabs">
         {[
           { id: 'slot', label: 'Слот' },
           { id: 'menu', label: 'Меню' },
           { id: 'order', label: 'Заказ' },
-          { id: 'test', label: 'Тест' },
+          { id: 'tracking', label: 'Статус' },
+          { id: 'history', label: 'История' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -293,7 +207,7 @@ export default function HomePage() {
           </button>
         ))}
       </div>
-
+      
       <div className="info-bar">
         <div className="info-row">
           <span>Офис</span>
@@ -303,201 +217,33 @@ export default function HomePage() {
           <span>Ресторан</span>
           <strong>{selectedRestaurant?.name ?? '—'}</strong>
         </div>
-        <div className="info-row">
-          <span>Слот</span>
-          <strong>{selectedSlot ?? 'не выбран'}</strong>
-        </div>
       </div>
-
-      {activeScreen === 'slot' ? (
-        <Section
-          title="Выбор слота доставки"
-          subtitle="Сейчас доступен только 13:00"
-        >
-          {deliverySlots.map((slot) => (
-            <Card
-              key={slot.id}
-              className={`slot-card ${slot.isAvailable ? '' : 'slot-disabled'}`}
-            >
-              <div className="slot-time">{slot.time}</div>
-              <div className="slot-note">
-                {slot.isAvailable ? `До ${slot.deadline}` : 'Недоступно'}
-              </div>
-              <SecondaryButton
-                type="button"
-                onClick={() => handleSelectSlot(slot.id, slot.isAvailable)}
-                disabled={!slot.isAvailable}
-              >
-                {selectedSlot === slot.id ? 'Выбрано' : 'Выбрать'}
-              </SecondaryButton>
-            </Card>
-          ))}
-          <PrimaryButton
-            type="button"
-            onClick={() => setActiveScreen('menu')}
-            disabled={!selectedSlot}
-          >
-            Перейти к меню
-          </PrimaryButton>
-        </Section>
-      ) : null}
-
-      {activeScreen === 'menu' ? (
-        <Section title="Меню ресторана" subtitle={orderSlotLabel}>
-          {!selectedSlot ? (
-            <Card>
-              <div style={{ fontWeight: 600 }}>Сначала выберите слот</div>
-              <div className="muted">
-                После выбора слота откроется меню
-              </div>
-              <PrimaryButton
-                type="button"
-                style={{ marginTop: 10 }}
-                onClick={() => setActiveScreen('slot')}
-              >
-                Перейти к выбору слота
-              </PrimaryButton>
-            </Card>
-          ) : (
-            <>
-              {Object.entries(menuByCategory).map(([category, items]) => (
-                <Card key={category}>
-                  <div className="row" style={{ justifyContent: 'space-between' }}>
-                    <div style={{ fontWeight: 600 }}>{category}</div>
-                    <Badge>{items.length}</Badge>
-                  </div>
-                  <div className="divider" />
-                  <div className="grid-2">
-                    {items.map((item) => (
-                      <div key={item.id} className="product-card">
-                        <div className="product-image">{item.emoji}</div>
-                        <div style={{ fontWeight: 600 }}>{item.name}</div>
-                        <div className="muted">{item.description}</div>
-                        <div
-                          className="row"
-                          style={{ justifyContent: 'space-between' }}
-                        >
-                          <span className="price">{formatPrice(item.price)}</span>
-                          <Badge>{item.unit}</Badge>
-                        </div>
-                        <SecondaryButton
-                          type="button"
-                          onClick={() => addToCart(item)}
-                        >
-                          В заказ
-                        </SecondaryButton>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              ))}
-            </>
-          )}
-        </Section>
-      ) : null}
-
-      {activeScreen === 'order' ? (
-        <Section title="Ваш заказ" subtitle={orderSlotLabel}>
-          <div className="order-grid">
-            <Card>
-              {cart.length === 0 ? (
-                <>
-                  <div style={{ fontWeight: 600 }}>Пока пусто</div>
-                  <div className="muted">Добавьте блюда из меню</div>
-                </>
-              ) : (
-                <>
-                  <div className="order-summary">
-                    {cart.map((entry) => (
-                      <div key={entry.item.id} className="cart-item">
-                        <div className="product-image">{entry.item.emoji}</div>
-                        <div>
-                          <div style={{ fontWeight: 600 }}>{entry.item.name}</div>
-                          <div className="muted">{entry.item.unit}</div>
-                          <div className="price">
-                            {formatPrice(entry.item.price)}
-                          </div>
-                        </div>
-                        <Stepper
-                          value={entry.qty}
-                          onDecrease={() => updateQty(entry.item.id, -1)}
-                          onIncrease={() => updateQty(entry.item.id, 1)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="divider" />
-                  <div className="order-summary">
-                    <div className="row" style={{ justifyContent: 'space-between' }}>
-                      <span className="order-muted">Сумма</span>
-                      <strong>{formatPrice(cartTotal)}</strong>
-                    </div>
-                    <div className="row" style={{ justifyContent: 'space-between' }}>
-                      <span className="order-muted">
-                        Скидка {ORDER_CONFIG.discountPercent}%
-                      </span>
-                      <strong>-{formatPrice(discountAmount)}</strong>
-                    </div>
-                    <div className="row" style={{ justifyContent: 'space-between' }}>
-                      <span className="order-muted">К оплате</span>
-                      <strong>{formatPrice(totalWithDiscount)}</strong>
-                    </div>
-                  </div>
-                  <div className="divider" />
-                  <div className="order-muted">
-                    Отмена доступна до {ORDER_CONFIG.cancelDeadline}
-                  </div>
-                  <div className="order-actions">
-                    <SecondaryButton
-                      type="button"
-                      disabled={!isCancelAvailable}
-                      onClick={() => setActiveScreen('menu')}
-                    >
-                      Редактировать
-                    </SecondaryButton>
-                    <SecondaryButton
-                      type="button"
-                      disabled={!isCancelAvailable}
-                      onClick={handleCancelOrder}
-                    >
-                      Отменить
-                    </SecondaryButton>
-                  </div>
-                </>
-              )}
-            </Card>
-
-            <Card className="card-soft">
-              <div style={{ fontWeight: 600 }}>Общий заказ офиса</div>
-              <div className="order-muted" style={{ marginTop: 4 }}>
-                Собираем заказы до {ORDER_CONFIG.cancelDeadline}
-              </div>
-              <div className="divider" />
-              <div className="order-summary">
-                <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <span className="order-muted">Участники</span>
-                  <strong>7</strong>
-                </div>
-                <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <span className="order-muted">Общая сумма</span>
-                  <strong>4 820 ₽</strong>
-                </div>
-                <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <span className="order-muted">До минималки</span>
-                  <strong>180 ₽</strong>
-                </div>
-              </div>
-              <div className="order-muted" style={{ marginTop: 8 }}>
-                Это общий сбор: дальше добавим статусы и чат‑уведомления.
-              </div>
-            </Card>
-          </div>
-        </Section>
-      ) : null}
-
-      {activeScreen === 'test' ? (
+      
+      {activeScreen === 'slot' && (
+        <SlotScreen onNext={() => setActiveScreen('menu')} />
+      )}
+      
+      {activeScreen === 'menu' && (
+        <MenuScreen
+          onGoToSlot={() => setActiveScreen('slot')}
+          onNext={() => setActiveScreen('order')}
+        />
+      )}
+      
+      {activeScreen === 'order' && (
+        <OrderScreen
+          onEdit={() => setActiveScreen('menu')}
+          onOrderCreated={() => setActiveScreen('tracking')}
+        />
+      )}
+      
+      {activeScreen === 'tracking' && <TrackingScreen />}
+      
+      {activeScreen === 'history' && <HistoryScreen />}
+      
+      {activeScreen === 'test' && (
         <>
-          <Card className="card-soft">
+          <div className="card card-soft">
             <div className="section-title">Авторизация</div>
             <div className="section-subtitle">
               Используем initData из Telegram или тестовые параметры
@@ -587,17 +333,18 @@ export default function HomePage() {
               </div>
             ) : null}
             <div className="row" style={{ marginTop: 10, gap: 12 }}>
-              <PrimaryButton type="button" onClick={handleTestAuth}>
+              <button type="button" className="btn" onClick={handleTestAuth}>
                 Применить тестовые данные
-              </PrimaryButton>
+              </button>
             </div>
-          </Card>
-
-          <Section
-            title="Источник данных"
-            subtitle="Можно подключить локальный backend или остаться на тестовых"
-          >
-            <Card>
+          </div>
+          
+          <div className="section">
+            <div className="section-title">Источник данных</div>
+            <div className="section-subtitle">
+              Можно подключить локальный backend или остаться на тестовых
+            </div>
+            <div className="card">
               <div className="row" style={{ flexWrap: 'wrap' }}>
                 <input
                   className="input"
@@ -605,19 +352,19 @@ export default function HomePage() {
                   onChange={(event) => setApiUrl(event.target.value)}
                   placeholder="http://localhost:3000"
                 />
-                <SecondaryButton type="button" onClick={handleApiLoad}>
+                <button type="button" className="btn-secondary" onClick={handleApiLoad}>
                   Загрузить API
-                </SecondaryButton>
-                <SecondaryButton type="button" onClick={handleMockReset}>
+                </button>
+                <button type="button" className="btn-secondary" onClick={handleMockReset}>
                   Тест‑данные
-                </SecondaryButton>
+                </button>
               </div>
               <div className="row" style={{ marginTop: 8 }}>
                 <span className="muted">Состояние API:</span>
                 <span className="muted">
                   {apiState === 'loading'
                     ? 'загрузка'
-                    : apiState === 'ok'
+                    : apiState === 'success'
                       ? 'готово'
                       : apiState === 'error'
                         ? 'ошибка'
@@ -629,10 +376,10 @@ export default function HomePage() {
                   {apiError}
                 </div>
               ) : null}
-            </Card>
-          </Section>
+            </div>
+          </div>
         </>
-      ) : null}
+      )}
     </>
   )
 }
