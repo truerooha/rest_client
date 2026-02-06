@@ -61,20 +61,20 @@ export function CartSummary({
         ))}
       </div>
       <div className="divider" />
-      <div className="order-summary">
+      <div className="price-summary">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="order-muted">Сумма</span>
-          <strong>{formatPrice(calculation.subtotal)}</strong>
+          <span>{formatPrice(calculation.subtotal)}</span>
         </div>
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="order-muted">
             Скидка {ORDER_CONFIG.discountPercent}%
           </span>
-          <strong>-{formatPrice(calculation.discount)}</strong>
+          <span>-{formatPrice(calculation.discount)}</span>
         </div>
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="order-muted">К оплате</span>
-          <strong>{formatPrice(calculation.total)}</strong>
+          <span className="price-summary-total">{formatPrice(calculation.total)}</span>
         </div>
       </div>
       <div className="divider" />

@@ -65,6 +65,91 @@ export function Badge({
   )
 }
 
+type StatusBannerProps = {
+  icon?: string
+  variant?: 'default' | 'warning' | 'error'
+  children: ReactNode
+}
+
+export function StatusBanner({ icon, variant = 'default', children }: StatusBannerProps) {
+  const variantClass =
+    variant === 'warning'
+      ? 'status-banner status-banner-warning'
+      : variant === 'error'
+        ? 'status-banner status-banner-error'
+        : 'status-banner'
+  return (
+    <div className={variantClass}>
+      {icon ? <div className="status-banner-icon">{icon}</div> : null}
+      <div>{children}</div>
+    </div>
+  )
+}
+
+type ContextRow = {
+  label: string
+  value: string
+}
+
+export function ContextCard({
+  rows,
+  className,
+}: {
+  rows: ContextRow[]
+  className?: string
+}) {
+  return (
+    <div className={cx('card context-card', className)}>
+      {rows.map((row, index) => (
+        <div key={`${row.label}-${index}`}>
+          <div className="context-row">
+            <span>{row.label}</span>
+            <span className="context-value">{row.value}</span>
+          </div>
+          {index < rows.length - 1 ? <div className="context-divider" /> : null}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+type StepTabItem = {
+  id: string
+  label: string
+  disabled?: boolean
+  visited?: boolean
+}
+
+export function StepTabs({
+  items,
+  activeId,
+  onSelect,
+}: {
+  items: StepTabItem[]
+  activeId: string
+  onSelect: (id: string) => void
+}) {
+  return (
+    <div className="step-tabs">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className={cx(
+            'step-tab',
+            item.visited && 'step-tab-visited',
+            activeId === item.id && 'step-tab-active',
+          )}
+          onClick={() => onSelect(item.id)}
+          disabled={item.disabled}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function Stepper({
   value,
   onDecrease,

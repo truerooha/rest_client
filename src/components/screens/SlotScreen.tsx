@@ -1,6 +1,6 @@
 'use client'
 
-import { Section, PrimaryButton, EmptyState } from '../ui'
+import { Section, PrimaryButton, EmptyState, StatusBanner } from '../ui'
 import { SlotSelector } from '../features/SlotSelector'
 import { useApp } from '../../store/AppContext'
 
@@ -24,12 +24,22 @@ export function SlotScreen({ onNext }: SlotScreenProps) {
   }
   
   const availableCount = deliverySlots.filter((slot) => slot.isAvailable).length
+  const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
   
   return (
     <Section
       title="Выбор слота доставки"
       subtitle={`Доступно слотов: ${availableCount}`}
     >
+      {selectedSlotData ? (
+        <StatusBanner icon="⏳">
+          Выбран слот {selectedSlotData.time}. Дедлайн до {selectedSlotData.deadline}
+        </StatusBanner>
+      ) : (
+        <StatusBanner icon="✅">
+          Выберите удобный слот, чтобы открыть меню ресторана
+        </StatusBanner>
+      )}
       <SlotSelector
         slots={deliverySlots}
         selectedSlot={selectedSlot}

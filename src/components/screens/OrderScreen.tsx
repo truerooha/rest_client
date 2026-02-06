@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Section } from '../ui'
+import { Section, StatusBanner } from '../ui'
 import { CartSummary } from '../features/CartSummary'
 import { GroupOrderCard } from '../features/GroupOrderCard'
 import { OrderCheckout } from '../features/OrderCheckout'
 import { useApp } from '../../store/AppContext'
 import { isCancelDeadlinePassed } from '../../lib/order-utils'
+import { ORDER_CONFIG } from '../../lib/config'
 
 type OrderScreenProps = {
   onEdit: () => void
@@ -17,6 +18,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
   const { selectedSlot, cart, updateCartQty, clearCart, groupOrder, createOrder } = useApp()
   const [showCheckout, setShowCheckout] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
   const isCancelAvailable = !isCancelDeadlinePassed()
   
@@ -28,6 +30,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
   
   const handleConfirmOrder = async () => {
     setIsProcessing(true)
+    setErrorMessage(null)
     try {
       await createOrder()
       setShowCheckout(false)
@@ -35,8 +38,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
         onOrderCreated()
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Order creation failed:', error)
+      setErrorMessage('Не удалось оформить заказ. Попробуйте ещё раз.')
     } finally {
       setIsProcessing(false)
     }
@@ -48,6 +50,16 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
   
   return (
     <Section title="Ваш заказ" subtitle={orderSlotLabel}>
+      <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} variant={isCancelAvailable ? 'default' : 'warning'}>
+        {isCancelAvailable
+          ? `Отмена доступна до ${ORDER_CONFIG.cancelDeadline}`
+          : 'Дедлайн прошёл. Отмена и правки недоступны'}
+      </StatusBanner>
+      {errorMessage ? (
+        <StatusBanner icon="❗" variant="error">
+          {errorMessage}
+        </StatusBanner>
+      ) : null}
       <div className="order-grid">
         {showCheckout ? (
           <OrderCheckout

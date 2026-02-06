@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Section, Card, EmptyState } from '../ui'
+import { Section, Card, EmptyState, StatusBanner } from '../ui'
 import { OrderStatusTimeline } from '../features/OrderStatusTimeline'
 import { GroupOrderCard } from '../features/GroupOrderCard'
 import { useApp } from '../../store/AppContext'
@@ -22,8 +22,39 @@ export function TrackingScreen() {
     )
   }
   
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Ожидает подтверждения'
+      case 'confirmed':
+        return 'Подтверждён рестораном'
+      case 'preparing':
+        return 'Готовится'
+      case 'ready':
+        return 'Готов к отправке'
+      case 'delivered':
+        return 'Доставлен'
+      case 'cancelled':
+        return 'Отменён'
+      default:
+        return status
+    }
+  }
+
+  const statusVariant = currentOrder.status === 'cancelled'
+    ? 'error'
+    : currentOrder.status === 'pending'
+      ? 'warning'
+      : 'default'
+
   return (
     <Section title="Отслеживание заказа">
+      <StatusBanner
+        icon={currentOrder.status === 'cancelled' ? '❗' : '🚚'}
+        variant={statusVariant}
+      >
+        Статус заказа: {getStatusLabel(currentOrder.status)}
+      </StatusBanner>
       <Card>
         <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
           Ваш заказ
@@ -55,9 +86,9 @@ export function TrackingScreen() {
         
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <strong>Итого:</strong>
-          <strong style={{ color: 'var(--primary)', fontSize: 18 }}>
+          <span className="price-summary-total">
             {formatPrice(currentOrder.totalPrice)}
-          </strong>
+          </span>
         </div>
       </Card>
       

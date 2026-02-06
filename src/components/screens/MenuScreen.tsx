@@ -1,9 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Section, EmptyState, PrimaryButton } from '../ui'
+import { Section, EmptyState, PrimaryButton, StatusBanner } from '../ui'
 import { MenuGrid } from '../features/MenuGrid'
 import { useApp } from '../../store/AppContext'
+import { calculateOrderTotals, formatPrice } from '../../lib/order-utils'
 
 type MenuScreenProps = {
   onGoToSlot: () => void
@@ -17,6 +18,7 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     menuItems,
     cart,
     addToCart,
+    deliverySlots,
   } = useApp()
   
   const activeMenuItems = useMemo(
@@ -37,9 +39,12 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     [menuItems, selectedRestaurantId],
   )
   
-  const formatPrice = (price: number) => `${price} ₽`
-  
   const orderSlotLabel = selectedSlot ? `Доставка в ${selectedSlot}` : 'Слот не выбран'
+  const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
+  const cartTotals = useMemo(
+    () => calculateOrderTotals(cart, 1),
+    [cart],
+  )
   
   if (!selectedSlot) {
     return (
@@ -71,15 +76,26 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
   
   return (
     <Section title="Меню ресторана" subtitle={orderSlotLabel}>
+      <StatusBanner icon="🕒">
+        {selectedSlotData
+          ? `Дедлайн заказа до ${selectedSlotData.deadline}. Добавьте блюда`
+          : 'Слот выбран. Добавьте блюда'}
+      </StatusBanner>
       <MenuGrid
         menuItems={activeMenuItems}
         onAddToCart={addToCart}
         formatPrice={formatPrice}
       />
       {cart.length > 0 ? (
-        <div style={{ marginTop: 16 }}>
+        <div className="cart-summary-bar">
+          <div className="cart-summary-row">
+            <span>Позиции</span>
+            <span className="cart-summary-total">
+              {cart.length} · {formatPrice(cartTotals.total)}
+            </span>
+          </div>
           <PrimaryButton type="button" onClick={onNext}>
-            Перейти к заказу ({cart.length})
+            Перейти к заказу
           </PrimaryButton>
         </div>
       ) : null}

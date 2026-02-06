@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { AppBar } from '../components/ui'
+import { AppBar, ContextCard, StepTabs, SecondaryButton } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
@@ -48,9 +48,13 @@ export default function HomePage() {
     setAuth,
     selectedBuildingId,
     selectedRestaurantId,
+    selectedSlot,
     buildings,
     restaurants,
     menuItems,
+    cart,
+    currentOrder,
+    orderHistory,
     apiState,
     apiError,
     setBuildings,
@@ -186,22 +190,27 @@ export default function HomePage() {
       : 'Локальный тест'
     : 'Нет данных'
 
-  const tabs: Array<{ id: Screen; label: string }> = IS_PRODUCTION
-    ? [
-        { id: 'slot', label: 'Слот' },
-        { id: 'menu', label: 'Меню' },
-        { id: 'order', label: 'Заказ' },
-        { id: 'tracking', label: 'Статус' },
-        { id: 'history', label: 'История' },
-      ]
-    : [
-        { id: 'slot', label: 'Слот' },
-        { id: 'menu', label: 'Меню' },
-        { id: 'order', label: 'Заказ' },
-        { id: 'tracking', label: 'Статус' },
-        { id: 'history', label: 'История' },
-        { id: 'test', label: 'Тест' },
-      ]
+  const stepTabs = [
+    { id: 'slot', label: 'Слот', disabled: false },
+    { id: 'menu', label: 'Меню', disabled: !selectedSlot },
+    { id: 'order', label: 'Заказ', disabled: !selectedSlot || cart.length === 0 },
+    { id: 'tracking', label: 'Статус', disabled: !currentOrder },
+    { id: 'history', label: 'История', disabled: false },
+  ] as const
+
+  const stepOrder = stepTabs.map((tab) => tab.id)
+  const activeStepId = stepOrder.includes(activeScreen)
+    ? activeScreen
+    : 'slot'
+
+  const stepTabsWithVisited = stepTabs.map((tab) => {
+    const activeIndex = stepOrder.indexOf(activeStepId)
+    const tabIndex = stepOrder.indexOf(tab.id)
+    return {
+      ...tab,
+      visited: tabIndex < activeIndex,
+    }
+  })
   
   return (
     <>
@@ -209,29 +218,25 @@ export default function HomePage() {
         title="Обед в Офис"
       />
       
-      <div className="tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`tab ${activeScreen === tab.id ? 'tab-active' : ''}`}
-            type="button"
-            onClick={() => setActiveScreen(tab.id as Screen)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <StepTabs
+        items={stepTabsWithVisited}
+        activeId={activeStepId}
+        onSelect={(id) => setActiveScreen(id as Screen)}
+      />
       
-      <div className="info-bar">
-        <div className="info-row">
-          <span>Офис</span>
-          <strong>{selectedBuilding?.name ?? '—'}</strong>
-        </div>
-        <div className="info-row">
-          <span>Ресторан</span>
-          <strong>{selectedRestaurant?.name ?? '—'}</strong>
-        </div>
-      </div>
+      <ContextCard
+        rows={[
+          { label: 'Офис', value: selectedBuilding?.name ?? '—' },
+          { label: 'Ресторан', value: selectedRestaurant?.name ?? '—' },
+          ...(selectedSlot ? [{ label: 'Слот', value: selectedSlot }] : []),
+        ]}
+      />
+
+      {!IS_PRODUCTION ? (
+        <SecondaryButton type="button" onClick={() => setActiveScreen('test')}>
+          Тестовый экран
+        </SecondaryButton>
+      ) : null}
 
       
       
@@ -257,7 +262,7 @@ export default function HomePage() {
       
       {activeScreen === 'history' && <HistoryScreen />}
       
-      {activeScreen === 'test' && (
+      {activeScreen === 'test' && !IS_PRODUCTION && (
         <>
           <div className="card card-soft">
             <div className="section-title">Авторизация</div>

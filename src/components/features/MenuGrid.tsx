@@ -101,7 +101,9 @@ export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps)
                 <div key={item.id} className="product-card">
                   <div className="product-image">{item.emoji}</div>
                   <div style={{ fontWeight: 600 }}>{item.name}</div>
-                  <div className="muted">{item.description}</div>
+                  {item.description ? (
+                    <div className="muted">{item.description}</div>
+                  ) : null}
                   <div className="row" style={{ justifyContent: 'space-between' }}>
                     <span className="price">{formatPrice(item.price)}</span>
                     <Badge>{item.unit}</Badge>

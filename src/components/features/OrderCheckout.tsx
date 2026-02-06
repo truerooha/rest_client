@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { CartItem } from '../../lib/types'
-import { Card, PrimaryButton, SecondaryButton } from '../ui'
+import { Card, PrimaryButton, SecondaryButton, StatusBanner } from '../ui'
 import { calculateOrderTotals, formatPrice } from '../../lib/order-utils'
 import { ORDER_CONFIG } from '../../lib/config'
 
@@ -52,10 +52,10 @@ export function OrderCheckout({
       
       <div className="divider" />
       
-      <div className="order-summary">
+      <div className="price-summary">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="order-muted">Сумма заказа</span>
-          <strong>{formatPrice(calculation.subtotal)}</strong>
+          <span>{formatPrice(calculation.subtotal)}</span>
         </div>
         
         {calculation.discount > 0 ? (
@@ -63,9 +63,9 @@ export function OrderCheckout({
             <span className="order-muted">
               Скидка {ORDER_CONFIG.discountPercent}%
             </span>
-            <strong style={{ color: 'var(--success)' }}>
+            <span style={{ color: 'var(--success)' }}>
               -{formatPrice(calculation.discount)}
-            </strong>
+            </span>
           </div>
         ) : null}
         
@@ -79,13 +79,13 @@ export function OrderCheckout({
               <span className="order-muted">
                 Ваша часть доставки ({participantCount} чел.)
               </span>
-              <strong>{formatPrice(calculation.deliveryPerPerson)}</strong>
+              <span>{formatPrice(calculation.deliveryPerPerson)}</span>
             </div>
           </>
         ) : (
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <span className="order-muted">Доставка</span>
-            <strong style={{ color: 'var(--success)' }}>Бесплатно</strong>
+            <span style={{ color: 'var(--success)' }}>Бесплатно</span>
           </div>
         )}
         
@@ -102,22 +102,15 @@ export function OrderCheckout({
       {calculation.deliveryCost > 0 &&
       calculation.subtotal - calculation.discount <
         ORDER_CONFIG.minOrderForFreeDelivery ? (
-        <div
-          style={{
-            background: 'var(--light-green)',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius-md)',
-            fontSize: 12,
-            color: 'var(--gray)',
-            marginTop: 8,
-          }}
-        >
-          Закажите ещё на{' '}
-          {formatPrice(
-            ORDER_CONFIG.minOrderForFreeDelivery -
-              (calculation.subtotal - calculation.discount),
-          )}{' '}
-          для бесплатной доставки
+        <div style={{ marginTop: 8 }}>
+          <StatusBanner icon="💡">
+            Закажите ещё на{' '}
+            {formatPrice(
+              ORDER_CONFIG.minOrderForFreeDelivery -
+                (calculation.subtotal - calculation.discount),
+            )}{' '}
+            для бесплатной доставки
+          </StatusBanner>
         </div>
       ) : null}
       

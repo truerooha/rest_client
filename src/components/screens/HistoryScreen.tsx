@@ -19,18 +19,20 @@ export function HistoryScreen() {
     )
   }
   
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case 'confirmed':
       case 'delivered':
-        return 'var(--success)'
+        return { backgroundColor: 'var(--success)', color: 'var(--white)' }
       case 'cancelled':
-        return 'var(--orange)'
+        return { backgroundColor: 'var(--danger)', color: 'var(--white)' }
       case 'preparing':
       case 'ready':
-        return 'var(--primary)'
+        return { backgroundColor: 'var(--primary)', color: 'var(--white)' }
+      case 'pending':
+        return { backgroundColor: 'var(--surface-muted)', color: 'var(--text-secondary)' }
       default:
-        return 'var(--gray)'
+        return { backgroundColor: 'var(--surface-muted)', color: 'var(--text-secondary)' }
     }
   }
   
@@ -65,12 +67,7 @@ export function HistoryScreen() {
               <div style={{ fontWeight: 600 }}>
                 Заказ от {new Date(order.createdAt).toLocaleDateString('ru')}
               </div>
-              <Badge
-                style={{
-                  backgroundColor: getStatusColor(order.status),
-                  color: 'white',
-                }}
-              >
+              <Badge style={getStatusStyle(order.status)}>
                 {getStatusLabel(order.status)}
               </Badge>
             </div>
@@ -100,9 +97,9 @@ export function HistoryScreen() {
             
             <div className="row" style={{ justifyContent: 'space-between' }}>
               <strong>Итого:</strong>
-              <strong style={{ color: 'var(--primary)' }}>
+              <span className="price-summary-total">
                 {formatPrice(order.totalPrice)}
-              </strong>
+              </span>
             </div>
           </Card>
         ))}

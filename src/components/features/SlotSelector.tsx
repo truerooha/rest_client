@@ -15,7 +15,9 @@ export function SlotSelector({ slots, selectedSlot, onSelectSlot }: SlotSelector
       {slots.map((slot) => (
         <Card
           key={slot.id}
-          className={`slot-card ${slot.isAvailable ? '' : 'slot-disabled'}`}
+          className={`slot-card ${slot.isAvailable ? '' : 'slot-disabled'} ${
+            selectedSlot === slot.id ? 'slot-selected' : ''
+          }`}
         >
           <div className="slot-time">{slot.time}</div>
           <div className="slot-note">
@@ -25,6 +27,7 @@ export function SlotSelector({ slots, selectedSlot, onSelectSlot }: SlotSelector
             type="button"
             onClick={() => slot.isAvailable && onSelectSlot(slot.id)}
             disabled={!slot.isAvailable}
+            aria-pressed={selectedSlot === slot.id}
           >
             {selectedSlot === slot.id ? 'Выбрано' : 'Выбрать'}
           </SecondaryButton>

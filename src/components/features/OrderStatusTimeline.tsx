@@ -27,8 +27,8 @@ export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps)
     return (
       <div className="status-timeline">
         <div className="status-cancelled">
-          <div className="status-dot" style={{ backgroundColor: 'var(--orange)' }} />
-          <div className="status-label" style={{ color: 'var(--orange)' }}>
+          <div className="status-dot" style={{ backgroundColor: 'var(--danger)' }} />
+          <div className="status-label" style={{ color: 'var(--danger)' }}>
             Заказ отменён
           </div>
         </div>
@@ -53,7 +53,7 @@ export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps)
             <div
               className="status-label"
               style={{
-                color: isCompleted ? 'var(--primary)' : 'var(--gray)',
+                color: isCompleted ? 'var(--primary)' : 'var(--text-muted)',
                 fontWeight: isActive ? 600 : 400,
               }}
             >
