@@ -20,7 +20,20 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
   } = useApp()
   
   const activeMenuItems = useMemo(
-    () => menuItems.filter((item) => item.restaurantId === selectedRestaurantId),
+    () => {
+      if (!selectedRestaurantId) {
+        return menuItems
+      }
+      const filtered = menuItems.filter(
+        (item) => item.restaurantId === selectedRestaurantId,
+      )
+      // Если по какой-то причине фильтр дал пусто, но данные есть —
+      // показываем всё меню, чтобы не оставлять пользователя без блюд.
+      if (filtered.length === 0 && menuItems.length > 0) {
+        return menuItems
+      }
+      return filtered
+    },
     [menuItems, selectedRestaurantId],
   )
   

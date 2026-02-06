@@ -1,15 +1,20 @@
-'use client'
+"use client"
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
-import type { 
-  TgAuth, 
-  Building, 
-  Restaurant, 
-  MenuItem, 
-  CartItem, 
-  DeliverySlot 
-} from '../lib/types'
-import { ORDER_CONFIG } from '../lib/config'
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react"
+import type {
+  TgAuth,
+  Building,
+  Restaurant,
+  MenuItem,
+  CartItem,
+  DeliverySlot,
+} from "../lib/types"
 
 type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
 
@@ -70,7 +75,6 @@ type AppState = {
   // API State
   apiState: ApiState
   apiError: string | null
-  dataSource: 'mock' | 'api'
   
   // Actions
   loadData: (apiUrl: string) => Promise<void>
@@ -84,7 +88,6 @@ type AppState = {
   setDeliverySlots: (slots: DeliverySlot[]) => void
   setApiState: (state: ApiState) => void
   setApiError: (error: string | null) => void
-  setDataSource: (source: 'mock' | 'api') => void
   setGroupOrder: (groupOrder: GroupOrder | null) => void
 }
 
@@ -95,7 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [buildings, setBuildings] = useState<Building[]>([])
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
-  const [deliverySlots, setDeliverySlots] = useState<DeliverySlot[]>(ORDER_CONFIG.fallbackSlots)
+  const [deliverySlots, setDeliverySlots] = useState<DeliverySlot[]>([])
   
   const [selectedBuildingId, setSelectedBuildingId] = useState<number | null>(null)
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<number | null>(null)
@@ -108,7 +111,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   const [apiState, setApiState] = useState<ApiState>('idle')
   const [apiError, setApiError] = useState<string | null>(null)
-  const [dataSource, setDataSource] = useState<'mock' | 'api'>('mock')
   
   const addToCart = useCallback((item: MenuItem) => {
     setCart((prev) => {
@@ -201,7 +203,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     groupOrder,
     apiState,
     apiError,
-    dataSource,
     loadData,
     createOrder,
     cancelOrder,
@@ -211,7 +212,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDeliverySlots,
     setApiState,
     setApiError,
-    setDataSource,
     setGroupOrder,
   }
   

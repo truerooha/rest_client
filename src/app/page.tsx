@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { AppBar, Badge } from '../components/ui'
+import { AppBar } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
@@ -19,20 +19,20 @@ import {
   fetchMenu,
   fetchDeliverySlots,
 } from '../lib/api'
-import { mockBuildings, mockMenuItems, mockRestaurants } from '../lib/mockData'
-import { getTestDataForBuilding, testBuildings, testMenuItems, testRestaurants } from '../lib/testData'
-import { ORDER_CONFIG } from '../lib/config'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
 
-const DEFAULT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const DEFAULT_API_URL = IS_PRODUCTION
+  ? process.env.NEXT_PUBLIC_API_URL ?? ''
+  : 'http://localhost:3002'
 
 type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
 export default function HomePage() {
   const [activeScreen, setActiveScreen] = useState<Screen>('slot')
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL)
+  const [hasRetriedLoad, setHasRetriedLoad] = useState(false)
   
   const [testInput, setTestInput] = useState({
     id: '123456',
@@ -50,16 +50,15 @@ export default function HomePage() {
     selectedRestaurantId,
     buildings,
     restaurants,
+    menuItems,
     apiState,
     apiError,
-    dataSource,
     setBuildings,
     setRestaurants,
     setMenuItems,
     setDeliverySlots,
     setApiState,
     setApiError,
-    setDataSource,
     setSelectedBuildingId,
     setSelectedRestaurantId,
   } = useApp()
@@ -83,19 +82,6 @@ export default function HomePage() {
     setAuth(createLocalAuth(user))
   }
   
-  const applyFallbackData = () => {
-    const fallbackBuildingId = testBuildings[0]?.id ?? mockBuildings[0]?.id ?? 1
-    const fallbackRestaurants =
-      testRestaurants.length > 0 ? testRestaurants : mockRestaurants
-    const fallbackMenuItems =
-      testMenuItems.length > 0 ? testMenuItems : mockMenuItems
-    setBuildings(testBuildings.length > 0 ? testBuildings : mockBuildings)
-    setRestaurants(fallbackRestaurants)
-    setMenuItems(fallbackMenuItems)
-    setSelectedBuildingId(fallbackBuildingId)
-    setSelectedRestaurantId(fallbackRestaurants[0]?.id ?? 1)
-  }
-  
   const handleApiLoad = async () => {
     setApiError(null)
     const urlParsed = apiUrlSchema.safeParse(apiUrl)
@@ -114,85 +100,75 @@ export default function HomePage() {
       }
       
       const apiRestaurants = await fetchRestaurants(apiUrl, buildingId)
-      const restaurantId = apiRestaurants[0]?.id ?? 0
-      if (!restaurantId) {
+      const firstRestaurantId = apiRestaurants[0]?.id ?? 0
+      if (!firstRestaurantId) {
         throw new Error('no_restaurants')
       }
       
       const apiSlots = await fetchDeliverySlots(apiUrl)
-      const apiMenu = await fetchMenu(apiUrl, restaurantId)
       
-      if (apiMenu.length === 0) {
-        if (IS_PRODUCTION) {
-          // На проде не используем mock-данные, просто фиксируем пустое меню
-          setBuildings(apiBuildings)
-          setRestaurants(apiRestaurants)
-          setMenuItems([])
-          setSelectedBuildingId(buildingId)
-          setSelectedRestaurantId(restaurantId)
-          setDeliverySlots(apiSlots.length > 0 ? apiSlots : ORDER_CONFIG.fallbackSlots)
-          setDataSource('api')
-          setApiState('error')
-          setApiError('Меню пока пусто. Обратитесь к администратору.')
-          return
-        }
+      // Пытаемся найти ресторан с непустым меню
+      let chosenRestaurant = apiRestaurants[0]
+      let apiMenu = await fetchMenu(apiUrl, chosenRestaurant.id)
 
-        const fallback = getTestDataForBuilding(buildingId)
-        if (fallback.menuItems.length === 0) {
-          applyFallbackData()
-          throw new Error('empty_menu')
+      if (apiMenu.length === 0 && apiRestaurants.length > 1) {
+        for (const restaurant of apiRestaurants.slice(1)) {
+          const menu = await fetchMenu(apiUrl, restaurant.id)
+          if (menu.length > 0) {
+            chosenRestaurant = restaurant
+            apiMenu = menu
+            break
+          }
         }
+      }
+
+      if (apiMenu.length === 0) {
         setBuildings(apiBuildings)
-        setRestaurants(fallback.restaurants)
-        setMenuItems(fallback.menuItems)
+        setRestaurants(apiRestaurants)
+        setMenuItems([])
         setSelectedBuildingId(buildingId)
-        setSelectedRestaurantId(fallback.restaurants[0]?.id ?? restaurantId)
-        setDeliverySlots(apiSlots.length > 0 ? apiSlots : ORDER_CONFIG.fallbackSlots)
-        setDataSource('api')
-        setApiState('success')
+        setSelectedRestaurantId(chosenRestaurant.id)
+        setDeliverySlots(apiSlots)
+        setApiState('error')
+        setApiError('Меню пока пусто. Обратитесь к администратору.')
         return
       }
       
       setBuildings(apiBuildings)
       setRestaurants(apiRestaurants)
       setMenuItems(apiMenu)
-      setDeliverySlots(apiSlots.length > 0 ? apiSlots : ORDER_CONFIG.fallbackSlots)
+      setDeliverySlots(apiSlots)
       setSelectedBuildingId(buildingId)
-      setSelectedRestaurantId(restaurantId)
-      setDataSource('api')
+      setSelectedRestaurantId(chosenRestaurant.id)
       setApiState('success')
     } catch (_error) {
-      if (IS_PRODUCTION) {
-        // На проде не подменяем API на mock
-        setApiError('Не удалось загрузить данные с сервера')
-        setDataSource('api')
-        setDeliverySlots(ORDER_CONFIG.fallbackSlots)
-        setApiState('error')
-      } else {
-        setApiError('Не удалось загрузить данные, использую тестовые данные')
-        setDataSource('mock')
-        applyFallbackData()
-        setDeliverySlots(ORDER_CONFIG.fallbackSlots)
-        setApiState('error')
-      }
+      setApiError('Не удалось загрузить данные с сервера')
+      setDeliverySlots([])
+      setApiState('error')
     }
-  }
-  
-  const handleMockReset = () => {
-    if (IS_PRODUCTION) {
-      // На проде не даём включать mock-режим
-      setApiError('Тестовые данные недоступны в продакшене')
-      return
-    }
-    setDataSource('mock')
-    applyFallbackData()
-    setApiState('idle')
-    setApiError(null)
   }
   
   useEffect(() => {
     handleApiLoad().catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    if (
+      activeScreen === 'menu' &&
+      menuItems.length === 0 &&
+      apiState !== 'loading' &&
+      !hasRetriedLoad
+    ) {
+      setHasRetriedLoad(true)
+      handleApiLoad().catch(() => undefined)
+    }
+  }, [activeScreen, apiState, hasRetriedLoad, menuItems.length])
+
+  useEffect(() => {
+    if (apiState === 'success' && menuItems.length > 0 && hasRetriedLoad) {
+      setHasRetriedLoad(false)
+    }
+  }, [apiState, hasRetriedLoad, menuItems.length])
   
   const selectedBuilding = useMemo(
     () => buildings.find((building) => building.id === selectedBuildingId),
@@ -231,11 +207,6 @@ export default function HomePage() {
     <>
       <AppBar
         title="Обед в Офис"
-        right={
-          IS_PRODUCTION ? undefined : (
-            <Badge>{dataSource === 'api' ? 'API' : 'Test'}</Badge>
-          )
-        }
       />
       
       <div className="tabs">
@@ -261,6 +232,8 @@ export default function HomePage() {
           <strong>{selectedRestaurant?.name ?? '—'}</strong>
         </div>
       </div>
+
+      
       
       {activeScreen === 'slot' && (
         <SlotScreen onNext={() => setActiveScreen('menu')} />
@@ -385,7 +358,7 @@ export default function HomePage() {
           <div className="section">
             <div className="section-title">Источник данных</div>
             <div className="section-subtitle">
-              Можно подключить локальный backend или остаться на тестовых
+              Подключите локальный backend и загрузите данные с API
             </div>
             <div className="card">
               <div className="row" style={{ flexWrap: 'wrap' }}>
@@ -397,9 +370,6 @@ export default function HomePage() {
                 />
                 <button type="button" className="btn-secondary" onClick={handleApiLoad}>
                   Загрузить API
-                </button>
-                <button type="button" className="btn-secondary" onClick={handleMockReset}>
-                  Тест‑данные
                 </button>
               </div>
               <div className="row" style={{ marginTop: 8 }}>
