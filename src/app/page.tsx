@@ -199,10 +199,10 @@ export default function HomePage() {
   ] as const
 
   const stepOrder = stepTabs.map((tab) => tab.id)
-  // @ts-ignore - activeScreen has wider type including 'test'
-  const activeStepId = stepOrder.includes(activeScreen)
+  
+  const activeStepId = (stepOrder.includes(activeScreen as any)
     ? activeScreen
-    : 'slot'
+    : 'slot') as typeof stepTabs[number]['id']
 
   const stepTabsWithVisited = stepTabs.map((tab) => {
     const activeIndex = stepOrder.indexOf(activeStepId)
