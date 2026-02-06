@@ -26,6 +26,7 @@ import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
 
 const DEFAULT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002'
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
 type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
@@ -122,6 +123,20 @@ export default function HomePage() {
       const apiMenu = await fetchMenu(apiUrl, restaurantId)
       
       if (apiMenu.length === 0) {
+        if (IS_PRODUCTION) {
+          // На проде не используем mock-данные, просто фиксируем пустое меню
+          setBuildings(apiBuildings)
+          setRestaurants(apiRestaurants)
+          setMenuItems([])
+          setSelectedBuildingId(buildingId)
+          setSelectedRestaurantId(restaurantId)
+          setDeliverySlots(apiSlots.length > 0 ? apiSlots : ORDER_CONFIG.fallbackSlots)
+          setDataSource('api')
+          setApiState('error')
+          setApiError('Меню пока пусто. Обратитесь к администратору.')
+          return
+        }
+
         const fallback = getTestDataForBuilding(buildingId)
         if (fallback.menuItems.length === 0) {
           applyFallbackData()
@@ -147,15 +162,28 @@ export default function HomePage() {
       setDataSource('api')
       setApiState('success')
     } catch (_error) {
-      setApiError('Не удалось загрузить данные, использую тестовые данные')
-      setDataSource('mock')
-      applyFallbackData()
-      setDeliverySlots(ORDER_CONFIG.fallbackSlots)
-      setApiState('error')
+      if (IS_PRODUCTION) {
+        // На проде не подменяем API на mock
+        setApiError('Не удалось загрузить данные с сервера')
+        setDataSource('api')
+        setDeliverySlots(ORDER_CONFIG.fallbackSlots)
+        setApiState('error')
+      } else {
+        setApiError('Не удалось загрузить данные, использую тестовые данные')
+        setDataSource('mock')
+        applyFallbackData()
+        setDeliverySlots(ORDER_CONFIG.fallbackSlots)
+        setApiState('error')
+      }
     }
   }
   
   const handleMockReset = () => {
+    if (IS_PRODUCTION) {
+      // На проде не даём включать mock-режим
+      setApiError('Тестовые данные недоступны в продакшене')
+      return
+    }
     setDataSource('mock')
     applyFallbackData()
     setApiState('idle')
@@ -181,22 +209,37 @@ export default function HomePage() {
       ? 'Telegram'
       : 'Локальный тест'
     : 'Нет данных'
+
+  const tabs: Array<{ id: Screen; label: string }> = IS_PRODUCTION
+    ? [
+        { id: 'slot', label: 'Слот' },
+        { id: 'menu', label: 'Меню' },
+        { id: 'order', label: 'Заказ' },
+        { id: 'tracking', label: 'Статус' },
+        { id: 'history', label: 'История' },
+      ]
+    : [
+        { id: 'slot', label: 'Слот' },
+        { id: 'menu', label: 'Меню' },
+        { id: 'order', label: 'Заказ' },
+        { id: 'tracking', label: 'Статус' },
+        { id: 'history', label: 'История' },
+        { id: 'test', label: 'Тест' },
+      ]
   
   return (
     <>
       <AppBar
         title="Обед в Офис"
-        right={<Badge>{dataSource === 'api' ? 'API' : 'Test'}</Badge>}
+        right={
+          IS_PRODUCTION ? undefined : (
+            <Badge>{dataSource === 'api' ? 'API' : 'Test'}</Badge>
+          )
+        }
       />
       
       <div className="tabs">
-        {[
-          { id: 'slot', label: 'Слот' },
-          { id: 'menu', label: 'Меню' },
-          { id: 'order', label: 'Заказ' },
-          { id: 'tracking', label: 'Статус' },
-          { id: 'history', label: 'История' },
-        ].map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             className={`tab ${activeScreen === tab.id ? 'tab-active' : ''}`}
