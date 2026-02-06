@@ -14,7 +14,17 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="ru">
+    <html
+      lang="ru"
+      style={
+        {
+          // Provide defaults for Telegram viewport CSS variables so SSR and client markup match.
+          // These mirror the values the Telegram WebApp script may set ("100vh").
+          ['--tg-viewport-height' as any]: '100vh',
+          ['--tg-viewport-stable-height' as any]: '100vh',
+        } as React.CSSProperties
+      }
+    >
       <head>
         <Script 
           src="https://telegram.org/js/telegram-web-app.js" 

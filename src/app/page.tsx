@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { AppBar, ContextCard, StepTabs, SecondaryButton } from '../components/ui'
+import { AppBar, ContextCard, StepTabs, SecondaryButton, LoadingScreen } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
@@ -30,6 +30,12 @@ const DEFAULT_API_URL = IS_PRODUCTION
 type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
 export default function HomePage() {
+  const [showSplash, setShowSplash] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowSplash(false), 2000)
+    return () => clearTimeout(t)
+  }, [])
   const [activeScreen, setActiveScreen] = useState<Screen>('slot')
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL)
   const [hasRetriedLoad, setHasRetriedLoad] = useState(false)
@@ -215,6 +221,7 @@ export default function HomePage() {
   
   return (
     <>
+      {showSplash ? <LoadingScreen /> : null}
       <AppBar
         title="Обед в Офис"
       />

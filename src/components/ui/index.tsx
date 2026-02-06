@@ -2,5 +2,6 @@ export { AppBar, Section, Card, Badge, Chip, Stepper, StatusBanner, ContextCard,
 export { PrimaryButton, SecondaryButton, IconButton } from './Button'
 export { InputField, SearchBar } from './Input'
 export { LoadingSpinner } from './LoadingSpinner'
+export { LoadingScreen } from './LoadingScreen'
 export { EmptyState } from './EmptyState'
 export { ErrorState } from './ErrorState'
