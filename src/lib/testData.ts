@@ -1,4 +1,4 @@
-import rawData from '../../../server/test-data/mock_data.json'
+import rawData from './mock_data.json'
 import { Building, MenuItem, Restaurant } from './types'
 
 type RawData = {
