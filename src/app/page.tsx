@@ -199,6 +199,7 @@ export default function HomePage() {
   ] as const
 
   const stepOrder = stepTabs.map((tab) => tab.id)
+  // @ts-ignore - activeScreen has wider type including 'test'
   const activeStepId = stepOrder.includes(activeScreen)
     ? activeScreen
     : 'slot'
