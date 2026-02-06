@@ -53,7 +53,8 @@ a {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 20px 16px 32px;
+  /* Добавляем дополнительный верхний отступ для Telegram Mini App (включая safe-area) */
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 32px;
   display: grid;
   gap: 16px;
 }
@@ -773,4 +774,14 @@ a {
   margin-left: 6px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+/* Тонкая метка с текущим пользователем Telegram */
+.tg-user-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.75;
+  text-align: center;
+  margin-top: 6px;
+  user-select: none;
 }

@@ -219,6 +219,12 @@ export default function HomePage() {
         title="Обед в Офис"
       />
       
+      {auth ? (
+        <div className="tg-user-label" aria-hidden>
+          {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}
+        </div>
+      ) : null}
+      
       <StepTabs
         items={stepTabsWithVisited}
         activeId={activeStepId}
