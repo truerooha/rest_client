@@ -45,3 +45,11 @@ export function isCancelDeadlinePassed(): boolean {
   deadline.setHours(hours, minutes, 0, 0)
   return now.getTime() > deadline.getTime()
 }
+
+export function isDeadlinePassed(deadlineTime: string): boolean {
+  const [hours, minutes] = deadlineTime.split(':').map(Number)
+  const now = new Date()
+  const deadline = new Date()
+  deadline.setHours(hours, minutes, 0, 0)
+  return now.getTime() > deadline.getTime()
+}

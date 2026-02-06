@@ -78,6 +78,13 @@ export function OrderCheckout({
             <div className="row" style={{ justifyContent: 'space-between' }}>
               <span className="order-muted">
                 Ваша часть доставки ({participantCount} чел.)
+                <span
+                  className="info-hint"
+                  title="Неиспользованная сумма доставки вернётся баллами после расчёта"
+                  aria-label="Неиспользованная сумма доставки вернётся баллами после расчёта"
+                >
+                  ℹ️
+                </span>
               </span>
               <span>{formatPrice(calculation.deliveryPerPerson)}</span>
             </div>

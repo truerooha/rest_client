@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Section, StatusBanner } from '../ui'
 import { CartSummary } from '../features/CartSummary'
 import { GroupOrderCard } from '../features/GroupOrderCard'
 import { OrderCheckout } from '../features/OrderCheckout'
 import { useApp } from '../../store/AppContext'
-import { isCancelDeadlinePassed } from '../../lib/order-utils'
+import { isCancelDeadlinePassed, isDeadlinePassed } from '../../lib/order-utils'
 import { ORDER_CONFIG } from '../../lib/config'
 
 type OrderScreenProps = {
@@ -15,16 +15,53 @@ type OrderScreenProps = {
 }
 
 export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
-  const { selectedSlot, cart, updateCartQty, clearCart, groupOrder, createOrder } = useApp()
+  const {
+    auth,
+    selectedSlot,
+    deliverySlots,
+    selectedRestaurantId,
+    selectedBuildingId,
+    cart,
+    updateCartQty,
+    clearCart,
+    groupOrder,
+    createOrder,
+  } = useApp()
   const [showCheckout, setShowCheckout] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
-  const isCancelAvailable = !isCancelDeadlinePassed()
+  const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
+  const isDeadlineOver = selectedSlotData
+    ? isDeadlinePassed(selectedSlotData.deadline)
+    : isCancelDeadlinePassed()
+  const isCancelAvailable = !isDeadlineOver
+  
+  const missingReasons = [
+    !auth ? 'авторизоваться в Telegram' : null,
+    !selectedSlot ? 'выбрать слот' : null,
+    !selectedRestaurantId ? 'выбрать ресторан' : null,
+    !selectedBuildingId ? 'выбрать офис' : null,
+  ].filter(Boolean) as string[]
+  
+  const joinReasons = (reasons: string[]) => {
+    if (reasons.length === 1) {
+      return reasons[0]
+    }
+    if (reasons.length === 2) {
+      return `${reasons[0]} и ${reasons[1]}`
+    }
+    return `${reasons.slice(0, -1).join(', ')} и ${reasons[reasons.length - 1]}`
+  }
+  
+  const canCheckout = missingReasons.length === 0 && isCancelAvailable
   
   const orderSlotLabel = selectedSlot ? `Доставка в ${selectedSlot}` : 'Слот не выбран'
   
   const handleCheckout = () => {
+    if (!canCheckout) {
+      return
+    }
     setShowCheckout(true)
   }
   
@@ -52,9 +89,14 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
     <Section title="Ваш заказ" subtitle={orderSlotLabel}>
       <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} variant={isCancelAvailable ? 'default' : 'warning'}>
         {isCancelAvailable
-          ? `Отмена доступна до ${ORDER_CONFIG.cancelDeadline}`
+          ? `Отмена доступна до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}`
           : 'Дедлайн прошёл. Отмена и правки недоступны'}
       </StatusBanner>
+      {missingReasons.length > 0 ? (
+        <StatusBanner icon="ℹ️" variant="warning">
+          Чтобы оформить заказ, нужно {joinReasons(missingReasons)}
+        </StatusBanner>
+      ) : null}
       {errorMessage ? (
         <StatusBanner icon="❗" variant="error">
           {errorMessage}
@@ -78,6 +120,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
             onCancel={clearCart}
             onCheckout={handleCheckout}
             isCancelAvailable={isCancelAvailable}
+            isCheckoutAvailable={canCheckout}
             participantCount={groupOrder?.participantCount ?? 1}
           />
         )}
