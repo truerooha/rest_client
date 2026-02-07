@@ -219,9 +219,14 @@ export default function HomePage() {
     }
   })
   
+  // Показываем экран загрузки как единственный корневой экран при старте,
+  // но при этом эффекты (инициализация Telegram, загрузка API) продолжают работать.
+  if (showSplash) {
+    return <LoadingScreen />
+  }
+
   return (
     <>
-      {showSplash ? <LoadingScreen /> : null}
       <AppBar
         title="Обед в Офис"
       />
