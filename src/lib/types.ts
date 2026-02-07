@@ -41,6 +41,8 @@ export type MenuItem = {
   unit: string
   category: string
   emoji: string
+  /** URL изображения блюда (опционально, fallback — emoji) */
+  imageUrl?: string
 }
 
 export type CartItem = {

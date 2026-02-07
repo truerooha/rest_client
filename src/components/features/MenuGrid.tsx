@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { MenuItem } from '../../lib/types'
 import { Card, Badge, SecondaryButton, Chip, SearchBar } from '../ui'
+
+const ADDED_FEEDBACK_MS = 400
 
 type MenuGridProps = {
   menuItems: MenuItem[]
@@ -13,6 +15,13 @@ type MenuGridProps = {
 export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [lastAddedItemId, setLastAddedItemId] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (lastAddedItemId === null) return
+    const t = setTimeout(() => setLastAddedItemId(null), ADDED_FEEDBACK_MS)
+    return () => clearTimeout(t)
+  }, [lastAddedItemId])
   
   const categories = useMemo(() => {
     const cats = new Set(menuItems.map((item) => item.category || 'Другое'))
@@ -99,7 +108,19 @@ export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps)
             <div className="grid-2">
               {items.map((item) => (
                 <div key={item.id} className="product-card">
-                  <div className="product-image">{item.emoji}</div>
+                  <div className="product-image-wrap">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt=""
+                        className="product-image-img"
+                      />
+                    ) : (
+                      <span className="product-image" aria-hidden>
+                        {item.emoji}
+                      </span>
+                    )}
+                  </div>
                   <div style={{ fontWeight: 600 }}>{item.name}</div>
                   {item.description ? (
                     <div className="muted">{item.description}</div>
@@ -108,8 +129,17 @@ export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps)
                     <span className="price">{formatPrice(item.price)}</span>
                     <Badge>{item.unit}</Badge>
                   </div>
-                  <SecondaryButton type="button" onClick={() => onAddToCart(item)}>
-                    В заказ
+                  <SecondaryButton
+                    type="button"
+                    onClick={() => {
+                      onAddToCart(item)
+                      setLastAddedItemId(item.id)
+                    }}
+                    disabled={lastAddedItemId === item.id}
+                    aria-live="polite"
+                    aria-label={lastAddedItemId === item.id ? 'Добавлено в заказ' : 'Добавить в заказ'}
+                  >
+                    {lastAddedItemId === item.id ? '✓ Добавлено' : 'В заказ'}
                   </SecondaryButton>
                 </div>
               ))}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { Section, EmptyState, PrimaryButton, StatusBanner } from '../ui'
 import { MenuGrid } from '../features/MenuGrid'
 import { useApp } from '../../store/AppContext'
@@ -45,7 +45,20 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     () => calculateOrderTotals(cart, 1),
     [cart],
   )
-  
+
+  const [cartBarBump, setCartBarBump] = useState(false)
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (cart.length === 0) return
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+    setCartBarBump(true)
+    const t = setTimeout(() => setCartBarBump(false), 200)
+    return () => clearTimeout(t)
+  }, [cart.length, cartTotals.total])
+
   if (!selectedSlot) {
     return (
       <Section title="Меню ресторана">
@@ -87,7 +100,12 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
         formatPrice={formatPrice}
       />
       {cart.length > 0 ? (
-        <div className="cart-summary-bar">
+        <div
+          className={`cart-summary-bar ${cartBarBump ? 'cart-summary-bar-bump' : ''}`}
+          role="status"
+          aria-live="polite"
+          aria-label={`В заказе ${cart.length} позиций на ${formatPrice(cartTotals.total)}`}
+        >
           <div className="cart-summary-row">
             <span>Позиции</span>
             <span className="cart-summary-total">

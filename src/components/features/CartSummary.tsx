@@ -99,14 +99,16 @@ export function CartSummary({
         </div>
       </div>
       <div className="divider" />
-      <div className="order-muted">
-        Отмена доступна до {ORDER_CONFIG.cancelDeadline}
-      </div>
+      {isCancelAvailable ? (
+        <div className="order-muted">
+          Отмена доступна до {ORDER_CONFIG.cancelDeadline}
+        </div>
+      ) : null}
       {onCheckout ? (
         <PrimaryButton
           type="button"
           onClick={onCheckout}
-          disabled={!isCancelAvailable || !isCheckoutAvailable}
+          disabled={!isCheckoutAvailable}
           style={{ marginTop: 12 }}
         >
           Оформить заказ

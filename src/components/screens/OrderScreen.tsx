@@ -54,7 +54,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
     return `${reasons.slice(0, -1).join(', ')} и ${reasons[reasons.length - 1]}`
   }
   
-  const canCheckout = missingReasons.length === 0 && isCancelAvailable
+  const canCheckout = missingReasons.length === 0
   
   const orderSlotLabel = selectedSlot ? `Доставка в ${selectedSlot}` : 'Слот не выбран'
   
@@ -92,6 +92,11 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
           ? `Отмена доступна до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}`
           : 'Дедлайн прошёл. Отмена и правки недоступны'}
       </StatusBanner>
+      {!isCancelAvailable && (
+        <p className="order-deadline-hint" role="status">
+          Редактирование закрыто. Можно только оформить заказ.
+        </p>
+      )}
       {missingReasons.length > 0 ? (
         <StatusBanner icon="ℹ️" variant="warning">
           Чтобы оформить заказ, нужно {joinReasons(missingReasons)}

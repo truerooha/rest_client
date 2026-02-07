@@ -99,11 +99,11 @@ export function ContextCard({
   className?: string
 }) {
   return (
-    <div className={cx('card context-card', className)}>
+    <div className={cx('card context-card', className)} role="region" aria-label="Контекст заказа">
       {rows.map((row, index) => (
         <div key={`${row.label}-${index}`}>
           <div className="context-row">
-            <span>{row.label}</span>
+            <span className="context-label">{row.label}</span>
             <span className="context-value">{row.value}</span>
           </div>
           {index < rows.length - 1 ? <div className="context-divider" /> : null}
