@@ -227,22 +227,21 @@ export default function HomePage() {
 
   return (
     <>
-      <AppBar
-        title="Обед в Офис"
-      />
-      
-      {auth ? (
-        <div className="tg-user-label" aria-hidden>
-          {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}
-        </div>
-      ) : null}
-      
-      <StepTabs
-        items={stepTabsWithVisited}
-        activeId={activeStepId}
-        onSelect={(id) => setActiveScreen(id as Screen)}
-      />
-      
+      <header className="page-header" role="banner">
+        <AppBar title="Обед в Офис" />
+        {auth ? (
+          <div className="tg-user-label" aria-hidden>
+            {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}
+          </div>
+        ) : null}
+        <StepTabs
+          items={stepTabsWithVisited}
+          activeId={activeStepId}
+          onSelect={(id) => setActiveScreen(id as Screen)}
+        />
+      </header>
+
+      <div className="page-content">
       <ContextCard
         rows={[
           { label: 'Офис', value: selectedBuilding?.name ?? '—' },
@@ -280,7 +279,7 @@ export default function HomePage() {
       
       {activeScreen === 'history' && <HistoryScreen />}
       
-      {activeScreen === 'test' && !IS_PRODUCTION && (
+      {activeScreen === 'test' && !IS_PRODUCTION ? (
         <>
           <div className="card card-soft">
             <div className="section-title">Авторизация</div>
@@ -415,7 +414,8 @@ export default function HomePage() {
             </div>
           </div>
         </>
-      )}
+      ) : null}
+      </div>
     </>
   )
 }

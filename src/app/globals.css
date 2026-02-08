@@ -52,11 +52,31 @@ a {
 .page {
   max-width: 430px;
   margin: 0 auto;
-  min-height: 100vh;
-  /* Добавляем дополнительный верхний отступ для Telegram Mini App (включая safe-area) */
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 32px;
-  display: grid;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-header {
+  flex-shrink: 0;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 8px;
+  background: var(--mint);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px 32px;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .app-bar {
