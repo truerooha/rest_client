@@ -272,7 +272,6 @@ export default function HomePage() {
       
       {activeScreen === 'order' && (
         <OrderScreen
-          onEdit={() => setActiveScreen('menu')}
           onOrderCreated={() => setActiveScreen('tracking')}
         />
       )}

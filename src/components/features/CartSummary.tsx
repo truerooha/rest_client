@@ -1,17 +1,14 @@
 'use client'
 
 import type { CartItem } from '../../lib/types'
-import { Card, Stepper, PrimaryButton, SecondaryButton } from '../ui'
+import { Card, Stepper, PrimaryButton } from '../ui'
 import { ORDER_CONFIG } from '../../lib/config'
 import { calculateOrderTotals, formatPrice as formatPriceUtil } from '../../lib/order-utils'
 
 type CartSummaryProps = {
   cart: CartItem[]
   onUpdateQty: (itemId: number, delta: number) => void
-  onEdit: () => void
-  onCancel: () => void
   onCheckout?: () => void
-  isCancelAvailable: boolean
   isCheckoutAvailable: boolean
   participantCount?: number
 }
@@ -19,10 +16,7 @@ type CartSummaryProps = {
 export function CartSummary({
   cart,
   onUpdateQty,
-  onEdit,
-  onCancel,
   onCheckout,
-  isCancelAvailable,
   isCheckoutAvailable,
   participantCount = 1,
 }: CartSummaryProps) {
@@ -99,11 +93,6 @@ export function CartSummary({
         </div>
       </div>
       <div className="divider" />
-      {isCancelAvailable ? (
-        <div className="order-muted">
-          Отмена доступна до {ORDER_CONFIG.cancelDeadline}
-        </div>
-      ) : null}
       {onCheckout ? (
         <PrimaryButton
           type="button"
@@ -114,14 +103,6 @@ export function CartSummary({
           Оформить заказ
         </PrimaryButton>
       ) : null}
-      <div className="order-actions" style={{ marginTop: onCheckout ? 8 : 0 }}>
-        <SecondaryButton type="button" disabled={!isCancelAvailable} onClick={onEdit}>
-          Редактировать
-        </SecondaryButton>
-        <SecondaryButton type="button" disabled={!isCancelAvailable} onClick={onCancel}>
-          Очистить
-        </SecondaryButton>
-      </div>
     </Card>
   )
 }

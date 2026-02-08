@@ -10,11 +10,10 @@ import { isCancelDeadlinePassed, isDeadlinePassed } from '../../lib/order-utils'
 import { ORDER_CONFIG } from '../../lib/config'
 
 type OrderScreenProps = {
-  onEdit: () => void
   onOrderCreated?: () => void
 }
 
-export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
+export function OrderScreen({ onOrderCreated }: OrderScreenProps) {
   const {
     auth,
     selectedSlot,
@@ -23,7 +22,6 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
     selectedBuildingId,
     cart,
     updateCartQty,
-    clearCart,
     groupOrder,
     createOrder,
   } = useApp()
@@ -121,10 +119,7 @@ export function OrderScreen({ onEdit, onOrderCreated }: OrderScreenProps) {
           <CartSummary
             cart={cart}
             onUpdateQty={updateCartQty}
-            onEdit={onEdit}
-            onCancel={clearCart}
             onCheckout={handleCheckout}
-            isCancelAvailable={isCancelAvailable}
             isCheckoutAvailable={canCheckout}
             participantCount={groupOrder?.participantCount ?? 1}
           />
