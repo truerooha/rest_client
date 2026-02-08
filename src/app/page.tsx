@@ -228,7 +228,7 @@ export default function HomePage() {
   return (
     <>
       <header className="page-header" role="banner">
-        <AppBar title="Обед в Офис" />
+        <AppBar title="" />
         {auth ? (
           <div className="tg-user-label" aria-hidden>
             {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}

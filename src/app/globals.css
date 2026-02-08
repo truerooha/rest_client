@@ -84,6 +84,7 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 6px 4px 2px;
+  min-height: 36px;
 }
 
 .app-title {
@@ -767,6 +768,10 @@ a {
 }
 
 /* Step tabs */
+.page-header .step-tabs {
+  margin-top: 10px;
+}
+
 .step-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
