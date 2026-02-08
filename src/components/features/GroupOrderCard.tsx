@@ -39,11 +39,9 @@ export function GroupOrderCard({
           </div>
         ) : null}
       </div>
-      {participantCount === 1 ? (
-        <div className="order-muted" style={{ marginTop: 8 }}>
-          Вы первый участник! Ждём других коллег.
-        </div>
-      ) : null}
+      <div className="order-muted" style={{ marginTop: 8 }}>
+        Доставка будет бесплатной при достижении минимальной суммы
+      </div>
     </Card>
   )
 }

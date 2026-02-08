@@ -69,25 +69,6 @@ export function CartSummary({
           <span>-{formatPrice(calculation.discount)}</span>
         </div>
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <span className="order-muted">
-            Доставка{calculation.deliveryCost > 0 ? ' (резерв)' : ''}
-            {calculation.deliveryCost > 0 ? (
-              <span
-                className="info-hint"
-                title="Неиспользованная сумма доставки вернётся баллами после расчёта"
-                aria-label="Неиспользованная сумма доставки вернётся баллами после расчёта"
-              >
-                ℹ️
-              </span>
-            ) : null}
-          </span>
-          <span>
-            {calculation.deliveryCost > 0
-              ? formatPrice(calculation.deliveryPerPerson)
-              : 'Бесплатно'}
-          </span>
-        </div>
-        <div className="row" style={{ justifyContent: 'space-between' }}>
           <span className="order-muted">К оплате</span>
           <span className="price-summary-total">{formatPrice(calculation.total)}</span>
         </div>
