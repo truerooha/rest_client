@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { CartItem } from '../../lib/types'
-import { Card, PrimaryButton, SecondaryButton, StatusBanner } from '../ui'
+import { Card, PrimaryButton, SecondaryButton } from '../ui'
 import { calculateOrderTotals, formatPrice } from '../../lib/order-utils'
 import { ORDER_CONFIG } from '../../lib/config'
 
@@ -69,33 +69,6 @@ export function OrderCheckout({
           </div>
         ) : null}
         
-        {calculation.deliveryCost > 0 ? (
-          <>
-            <div className="row" style={{ justifyContent: 'space-between' }}>
-              <span className="order-muted">Доставка (всего)</span>
-              <span>{formatPrice(calculation.deliveryCost)}</span>
-            </div>
-            <div className="row" style={{ justifyContent: 'space-between' }}>
-              <span className="order-muted">
-                Ваша часть доставки ({participantCount} чел.)
-                <span
-                  className="info-hint"
-                  title="Неиспользованная сумма доставки вернётся баллами после расчёта"
-                  aria-label="Неиспользованная сумма доставки вернётся баллами после расчёта"
-                >
-                  ℹ️
-                </span>
-              </span>
-              <span>{formatPrice(calculation.deliveryPerPerson)}</span>
-            </div>
-          </>
-        ) : (
-          <div className="row" style={{ justifyContent: 'space-between' }}>
-            <span className="order-muted">Доставка</span>
-            <span style={{ color: 'var(--success)' }}>Бесплатно</span>
-          </div>
-        )}
-        
         <div className="divider" />
         
         <div className="row" style={{ justifyContent: 'space-between' }}>
@@ -105,21 +78,6 @@ export function OrderCheckout({
           </strong>
         </div>
       </div>
-      
-      {calculation.deliveryCost > 0 &&
-      calculation.subtotal - calculation.discount <
-        ORDER_CONFIG.minOrderForFreeDelivery ? (
-        <div style={{ marginTop: 8 }}>
-          <StatusBanner icon="💡">
-            Закажите ещё на{' '}
-            {formatPrice(
-              ORDER_CONFIG.minOrderForFreeDelivery -
-                (calculation.subtotal - calculation.discount),
-            )}{' '}
-            для бесплатной доставки
-          </StatusBanner>
-        </div>
-      ) : null}
       
       <div className="order-actions" style={{ marginTop: 16 }}>
         <SecondaryButton type="button" onClick={onCancel} disabled={isSubmitting}>
