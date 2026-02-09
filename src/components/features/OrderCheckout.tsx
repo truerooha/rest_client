@@ -57,7 +57,6 @@ export function OrderCheckout({
           <span className="order-muted">Сумма заказа</span>
           <span>{formatPrice(calculation.subtotal)}</span>
         </div>
-        
         {calculation.discount > 0 ? (
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <span className="order-muted">
@@ -68,9 +67,7 @@ export function OrderCheckout({
             </span>
           </div>
         ) : null}
-        
         <div className="divider" />
-        
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <span style={{ fontWeight: 600, fontSize: 16 }}>К оплате</span>
           <strong style={{ fontSize: 20, color: 'var(--primary)' }}>

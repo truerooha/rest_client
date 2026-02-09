@@ -21,7 +21,7 @@ export function SlotSelector({ slots, selectedSlot, onSelectSlot }: SlotSelector
         >
           <div className="slot-time">{slot.time}</div>
           <div className="slot-note">
-            {slot.isAvailable ? `До ${slot.deadline}` : 'Недоступно'}
+            {slot.isAvailable ? `Принять заказ до ${slot.deadline}` : 'Недоступно'}
           </div>
           <SecondaryButton
             type="button"

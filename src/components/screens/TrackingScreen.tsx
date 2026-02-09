@@ -1,14 +1,26 @@
 'use client'
 
-import { useEffect } from 'react'
-import { Section, Card, EmptyState, StatusBanner } from '../ui'
+import { useState } from 'react'
+import { Section, Card, EmptyState, StatusBanner, SecondaryButton } from '../ui'
 import { OrderStatusTimeline } from '../features/OrderStatusTimeline'
 import { GroupOrderCard } from '../features/GroupOrderCard'
 import { useApp } from '../../store/AppContext'
-import { formatPrice } from '../../lib/order-utils'
+import { formatPrice, isDeadlinePassed } from '../../lib/order-utils'
 
-export function TrackingScreen() {
-  const { currentOrder, groupOrder } = useApp()
+type TrackingScreenProps = {
+  apiUrl: string
+}
+
+export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
+  const { currentOrder, groupOrder, deliverySlots, cancelOrder } = useApp()
+  const [cancelling, setCancelling] = useState(false)
+  const slotData = currentOrder
+    ? deliverySlots.find((s) => s.id === currentOrder.deliverySlot)
+    : null
+  const canCancel =
+    currentOrder?.status === 'confirmed' &&
+    slotData &&
+    !isDeadlinePassed(slotData.deadline)
   
   if (!currentOrder) {
     return (
@@ -90,8 +102,26 @@ export function TrackingScreen() {
             {formatPrice(currentOrder.totalPrice)}
           </span>
         </div>
+        {canCancel ? (
+          <div style={{ marginTop: 16 }}>
+            <SecondaryButton
+              type="button"
+              onClick={async () => {
+                setCancelling(true)
+                try {
+                  await cancelOrder(apiUrl, currentOrder.id)
+                } finally {
+                  setCancelling(false)
+                }
+              }}
+              disabled={cancelling}
+            >
+              {cancelling ? 'Отмена...' : 'Отменить заказ'}
+            </SecondaryButton>
+          </div>
+        ) : null}
       </Card>
-      
+
       {groupOrder ? (
         <GroupOrderCard
           participantCount={groupOrder.participantCount}

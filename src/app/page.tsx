@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { AppBar, ContextCard, StepTabs, SecondaryButton, LoadingScreen } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
+import { RestaurantsScreen } from '../components/screens/RestaurantsScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
 import { TrackingScreen } from '../components/screens/TrackingScreen'
@@ -18,6 +19,8 @@ import {
   fetchRestaurants,
   fetchMenu,
   fetchDeliverySlots,
+  fetchGroupOrder,
+  putDraft,
 } from '../lib/api'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
@@ -27,7 +30,7 @@ const DEFAULT_API_URL = IS_PRODUCTION
   ? process.env.NEXT_PUBLIC_API_URL ?? ''
   : 'http://localhost:3002'
 
-type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
+type Screen = 'slot' | 'restaurants' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true)
@@ -61,8 +64,11 @@ export default function HomePage() {
     cart,
     currentOrder,
     orderHistory,
+    groupOrder,
+    setGroupOrder,
     apiState,
     apiError,
+    loadData,
     setBuildings,
     setRestaurants,
     setMenuItems,
@@ -179,6 +185,56 @@ export default function HomePage() {
       setHasRetriedLoad(false)
     }
   }, [apiState, hasRetriedLoad, menuItems.length])
+
+  useEffect(() => {
+    if (auth && apiState === 'success') {
+      loadData(apiUrl).catch(() => undefined)
+    }
+  }, [auth?.user.id, apiState])
+
+  useEffect(() => {
+    if (
+      !selectedSlot ||
+      !selectedBuildingId ||
+      !selectedRestaurantId ||
+      !apiUrl
+    ) {
+      setGroupOrder(null)
+      return
+    }
+    fetchGroupOrder(apiUrl, selectedSlot, selectedBuildingId, selectedRestaurantId)
+      .then((data) => {
+        setGroupOrder({
+          deliverySlot: data.deliverySlot,
+          buildingId: data.buildingId,
+          restaurantId: data.restaurantId,
+          participantCount: data.participantCount,
+          totalAmount: data.totalAmount,
+          minimumAmount: data.minimumAmount ?? 0,
+          orders: [],
+        })
+      })
+      .catch(() => setGroupOrder(null))
+  }, [selectedSlot, selectedBuildingId, selectedRestaurantId, apiUrl, setGroupOrder])
+
+  useEffect(() => {
+    if (!auth || !apiUrl) return
+    if (cart.length === 0 && !selectedSlot) return
+    const t = setTimeout(() => {
+      putDraft(apiUrl, auth.user.id, {
+        delivery_slot: selectedSlot,
+        restaurant_id: selectedRestaurantId ?? null,
+        building_id: selectedBuildingId ?? null,
+        items: cart.map((c) => ({
+          id: c.item.id,
+          name: c.item.name,
+          price: c.item.price,
+          quantity: c.qty,
+        })),
+      }).catch(() => undefined)
+    }, 600)
+    return () => clearTimeout(t)
+  }, [auth, apiUrl, cart, selectedSlot, selectedRestaurantId, selectedBuildingId])
   
   const selectedBuilding = useMemo(
     () => buildings.find((building) => building.id === selectedBuildingId),
@@ -196,17 +252,28 @@ export default function HomePage() {
       : 'Локальный тест'
     : 'Нет данных'
 
+  const hasMultipleRestaurants = restaurants.length > 1
   const stepTabs = [
     { id: 'slot', label: 'Слот', disabled: false },
+    ...(hasMultipleRestaurants
+      ? [{ id: 'restaurants' as const, label: 'Ресторан', disabled: !selectedSlot }]
+      : []),
     { id: 'menu', label: 'Меню', disabled: !selectedSlot },
     { id: 'order', label: 'Заказ', disabled: !selectedSlot || cart.length === 0 },
-    { id: 'tracking', label: 'Статус', disabled: !currentOrder },
+    {
+      id: 'tracking',
+      label: 'Статус',
+      disabled: !(
+        currentOrder &&
+        currentOrder.status === 'confirmed' &&
+        (!groupOrder || groupOrder.minimumAmount <= 0 || groupOrder.totalAmount >= groupOrder.minimumAmount)
+      ),
+    },
     { id: 'history', label: 'История', disabled: false },
   ] as const
 
   const stepOrder = stepTabs.map((tab) => tab.id)
-  
-  const activeStepId = (stepOrder.includes(activeScreen as any)
+  const activeStepId = (stepOrder.includes(activeScreen as typeof stepOrder[number])
     ? activeScreen
     : 'slot') as typeof stepTabs[number]['id']
 
@@ -259,9 +326,20 @@ export default function HomePage() {
       
       
       {activeScreen === 'slot' && (
-        <SlotScreen onNext={() => setActiveScreen('menu')} />
+        <SlotScreen
+          onNext={() =>
+            setActiveScreen(hasMultipleRestaurants ? 'restaurants' : 'menu')
+          }
+        />
       )}
-      
+
+      {activeScreen === 'restaurants' && (
+        <RestaurantsScreen
+          onBack={() => setActiveScreen('slot')}
+          onOpenMenu={() => setActiveScreen('menu')}
+        />
+      )}
+
       {activeScreen === 'menu' && (
         <MenuScreen
           onGoToSlot={() => setActiveScreen('slot')}
@@ -271,11 +349,16 @@ export default function HomePage() {
       
       {activeScreen === 'order' && (
         <OrderScreen
+          apiUrl={apiUrl}
           onOrderCreated={() => setActiveScreen('tracking')}
         />
       )}
       
-      {activeScreen === 'tracking' && <TrackingScreen />}
+      {activeScreen === 'tracking' && (
+        <TrackingScreen
+          apiUrl={apiUrl}
+        />
+      )}
       
       {activeScreen === 'history' && <HistoryScreen />}
       

@@ -91,7 +91,7 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     <Section title="Меню ресторана" subtitle={orderSlotLabel}>
       <StatusBanner icon="🕒">
         {selectedSlotData
-          ? `Дедлайн заказа до ${selectedSlotData.deadline}. Добавьте блюда`
+          ? `Принять заказ до ${selectedSlotData.deadline}. Добавьте блюда`
           : 'Слот выбран. Добавьте блюда'}
       </StatusBanner>
       <MenuGrid

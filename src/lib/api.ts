@@ -144,11 +144,164 @@ export async function createOrder(
     },
     body: JSON.stringify(payload),
   })
-  
+
   const json = (await res.json()) as ApiResponse<CreateOrderResponse>
   if (!res.ok || !json.success || !json.data) {
     throw new Error(json.error ?? 'order_create_failed')
   }
-  
+
+  return json.data
+}
+
+type ApiUser = {
+  id: number
+  telegram_user_id: number
+  username?: string | null
+  building_id?: number | null
+}
+
+export async function fetchUserOrCreate(
+  apiUrl: string,
+  telegramUserId: number,
+  data: { username?: string; first_name?: string; last_name?: string; building_id?: number },
+): Promise<ApiUser> {
+  const res = await fetch(`${apiUrl}/api/user`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram_user_id: telegramUserId,
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      building_id: data.building_id,
+    }),
+  })
+  const json = (await res.json()) as ApiResponse<ApiUser>
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error ?? 'user_sync_failed')
+  }
+  return json.data
+}
+
+export async function getDraft(
+  apiUrl: string,
+  telegramUserId: number,
+): Promise<{
+  delivery_slot: string | null
+  restaurant_id: number | null
+  building_id: number | null
+  items: Array<{ id: number; name: string; price: number; quantity?: number }>
+} | null> {
+  const res = await fetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`)
+  const json = (await res.json()) as ApiResponse<{
+    delivery_slot: string | null
+    restaurant_id: number | null
+    building_id: number | null
+    items: Array<{ id: number; name: string; price: number; quantity?: number }>
+  } | null>
+  if (!res.ok || !json.success) {
+    throw new Error('draft_fetch_failed')
+  }
+  return json.data ?? null
+}
+
+export async function putDraft(
+  apiUrl: string,
+  telegramUserId: number,
+  draft: {
+    delivery_slot: string | null
+    restaurant_id: number | null
+    building_id: number | null
+    items: Array<{ id: number; name: string; price: number; quantity: number }>
+  },
+): Promise<void> {
+  const res = await fetch(`${apiUrl}/api/draft`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram_user_id: telegramUserId,
+      delivery_slot: draft.delivery_slot,
+      restaurant_id: draft.restaurant_id,
+      building_id: draft.building_id,
+      items: draft.items,
+    }),
+  })
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success) {
+    throw new Error('draft_save_failed')
+  }
+}
+
+export async function deleteDraft(apiUrl: string, telegramUserId: number): Promise<void> {
+  const res = await fetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`, {
+    method: 'DELETE',
+  })
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success) {
+    throw new Error('draft_delete_failed')
+  }
+}
+
+export async function payOrder(
+  apiUrl: string,
+  orderId: number,
+  telegramUserId: number,
+): Promise<{ id: number; status: string }> {
+  const res = await fetch(`${apiUrl}/api/orders/${orderId}/pay`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ telegram_user_id: telegramUserId }),
+  })
+  const json = (await res.json()) as ApiResponse<{ id: number; status: string }>
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error ?? 'pay_failed')
+  }
+  return json.data
+}
+
+export async function cancelOrderApi(
+  apiUrl: string,
+  orderId: number,
+  telegramUserId: number,
+): Promise<void> {
+  const res = await fetch(
+    `${apiUrl}/api/orders/${orderId}?telegram_user_id=${telegramUserId}`,
+    { method: 'DELETE' },
+  )
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success) {
+    throw new Error((json as { error?: string }).error ?? 'cancel_failed')
+  }
+}
+
+type GroupOrderResponse = {
+  deliverySlot: string
+  buildingId: number
+  restaurantId: number
+  participantCount: number
+  totalAmount: number
+  minimumAmount?: number
+  orders: Array<{
+    id: number
+    user_id: number
+    total_price: number
+    status: string
+    items: unknown
+  }>
+}
+
+export async function fetchGroupOrder(
+  apiUrl: string,
+  deliverySlot: string,
+  buildingId: number,
+  restaurantId: number,
+): Promise<GroupOrderResponse> {
+  const res = await fetch(
+    `${apiUrl}/api/group-orders?deliverySlot=${encodeURIComponent(deliverySlot)}&buildingId=${buildingId}&restaurantId=${restaurantId}`,
+  )
+  const json = (await res.json()) as ApiResponse<GroupOrderResponse>
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error('group_order_fetch_failed')
+  }
   return json.data
 }

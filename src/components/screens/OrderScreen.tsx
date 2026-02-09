@@ -10,10 +10,11 @@ import { isCancelDeadlinePassed, isDeadlinePassed } from '../../lib/order-utils'
 import { ORDER_CONFIG } from '../../lib/config'
 
 type OrderScreenProps = {
+  apiUrl: string
   onOrderCreated?: () => void
 }
 
-export function OrderScreen({ onOrderCreated }: OrderScreenProps) {
+export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   const {
     auth,
     selectedSlot,
@@ -67,13 +68,15 @@ export function OrderScreen({ onOrderCreated }: OrderScreenProps) {
     setIsProcessing(true)
     setErrorMessage(null)
     try {
-      await createOrder()
+      await createOrder(apiUrl)
       setShowCheckout(false)
       if (onOrderCreated) {
         onOrderCreated()
       }
     } catch (error) {
-      setErrorMessage('Не удалось оформить заказ. Попробуйте ещё раз.')
+      const msg =
+        error instanceof Error ? error.message : 'Не удалось оформить заказ. Попробуйте ещё раз.'
+      setErrorMessage(msg)
     } finally {
       setIsProcessing(false)
     }
@@ -87,8 +90,8 @@ export function OrderScreen({ onOrderCreated }: OrderScreenProps) {
     <Section title="Ваш заказ" subtitle={orderSlotLabel}>
       <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} variant={isCancelAvailable ? 'default' : 'warning'}>
         {isCancelAvailable
-          ? `Отмена доступна до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}`
-          : 'Дедлайн прошёл. Отмена и правки недоступны'}
+          ? `Принять заказ до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}. Отмена возможна до этого времени`
+          : 'Время приёма заказов прошло. Отмена и правки недоступны'}
       </StatusBanner>
       {!isCancelAvailable && (
         <p className="order-deadline-hint" role="status">

@@ -20,7 +20,7 @@ export function GroupOrderCard({
     <Card className="card-soft">
       <div style={{ fontWeight: 600 }}>Общий заказ офиса</div>
       <div className="order-muted" style={{ marginTop: 4 }}>
-        Собираем заказы до {ORDER_CONFIG.cancelDeadline}
+        Принять заказ до {ORDER_CONFIG.cancelDeadline}
       </div>
       <div className="divider" />
       <div className="order-summary">
