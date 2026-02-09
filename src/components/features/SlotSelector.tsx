@@ -2,6 +2,7 @@
 
 import type { DeliverySlot } from '../../lib/types'
 import { Card, SecondaryButton } from '../ui'
+import { isDeadlinePassed } from '../../lib/order-utils'
 
 type SlotSelectorProps = {
   slots: DeliverySlot[]
@@ -12,27 +13,36 @@ type SlotSelectorProps = {
 export function SlotSelector({ slots, selectedSlot, onSelectSlot }: SlotSelectorProps) {
   return (
     <div className="slot-selector">
-      {slots.map((slot) => (
-        <Card
-          key={slot.id}
-          className={`slot-card ${slot.isAvailable ? '' : 'slot-disabled'} ${
-            selectedSlot === slot.id ? 'slot-selected' : ''
-          }`}
-        >
-          <div className="slot-time">{slot.time}</div>
-          <div className="slot-note">
-            {slot.isAvailable ? `Принять заказ до ${slot.deadline}` : 'Недоступно'}
-          </div>
-          <SecondaryButton
-            type="button"
-            onClick={() => slot.isAvailable && onSelectSlot(slot.id)}
-            disabled={!slot.isAvailable}
-            aria-pressed={selectedSlot === slot.id}
+      {slots.map((slot) => {
+        const deadlinePassed = isDeadlinePassed(slot.deadline)
+        const isAvailable = slot.isAvailable && !deadlinePassed
+
+        return (
+          <Card
+            key={slot.id}
+            className={`slot-card ${isAvailable ? '' : 'slot-disabled'} ${
+              selectedSlot === slot.id ? 'slot-selected' : ''
+            }`}
           >
-            {selectedSlot === slot.id ? 'Выбрано' : 'Выбрать'}
-          </SecondaryButton>
-        </Card>
-      ))}
+            <div className="slot-time">{slot.time}</div>
+            <div className="slot-note">
+              {deadlinePassed
+                ? 'Приём заказов завершён'
+                : isAvailable
+                  ? `Принять заказ до ${slot.deadline}`
+                  : 'Недоступно'}
+            </div>
+            <SecondaryButton
+              type="button"
+              onClick={() => isAvailable && onSelectSlot(slot.id)}
+              disabled={!isAvailable}
+              aria-pressed={selectedSlot === slot.id}
+            >
+              {selectedSlot === slot.id ? 'Выбрано' : 'Выбрать'}
+            </SecondaryButton>
+          </Card>
+        )
+      })}
     </div>
   )
 }

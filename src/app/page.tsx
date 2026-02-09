@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { AppBar, ContextCard, StepTabs, SecondaryButton, LoadingScreen } from '../components/ui'
+import { AppBar, ContextCard, StepTabs, SecondaryButton, ConfirmDialog, LoadingScreen } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
-import { RestaurantsScreen } from '../components/screens/RestaurantsScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
 import { TrackingScreen } from '../components/screens/TrackingScreen'
@@ -30,7 +29,7 @@ const DEFAULT_API_URL = IS_PRODUCTION
   ? process.env.NEXT_PUBLIC_API_URL ?? ''
   : 'http://localhost:3002'
 
-type Screen = 'slot' | 'restaurants' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
+type Screen = 'slot' | 'menu' | 'order' | 'tracking' | 'history' | 'test'
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true)
@@ -52,16 +51,20 @@ export default function HomePage() {
   })
   const [authError, setAuthError] = useState<string | null>(null)
   
+  const [pendingRestaurantId, setPendingRestaurantId] = useState<number | null>(null)
+
   const {
     auth,
     setAuth,
     selectedBuildingId,
     selectedRestaurantId,
     selectedSlot,
+    setSelectedSlot,
     buildings,
     restaurants,
     menuItems,
     cart,
+    clearCart,
     currentOrder,
     orderHistory,
     groupOrder,
@@ -186,6 +189,50 @@ export default function HomePage() {
     }
   }, [apiState, hasRetriedLoad, menuItems.length])
 
+  const cartRestaurantId = cart.length > 0 ? cart[0].item.restaurantId : null
+
+  const applyRestaurantSelection = (restaurantId: number) => {
+    setSelectedRestaurantId(restaurantId)
+    fetchMenu(apiUrl, restaurantId)
+      .then((items) => {
+        if (items.length > 0) setMenuItems(items)
+      })
+      .catch(() => undefined)
+    if (selectedSlot) {
+      setActiveScreen('menu')
+    }
+  }
+
+  const handleSelectRestaurant = (restaurantId: number) => {
+    if (restaurantId === selectedRestaurantId) {
+      if (selectedSlot) setActiveScreen('menu')
+      return
+    }
+    if (cart.length > 0 && cartRestaurantId !== null && cartRestaurantId !== restaurantId) {
+      setPendingRestaurantId(restaurantId)
+      return
+    }
+    applyRestaurantSelection(restaurantId)
+  }
+
+  const handleSlotSelected = (slotId: string) => {
+    setSelectedSlot(slotId)
+    if (selectedRestaurantId) {
+      setActiveScreen('menu')
+    }
+  }
+
+  const handleConfirmRestaurantChange = () => {
+    if (pendingRestaurantId === null) return
+    clearCart()
+    applyRestaurantSelection(pendingRestaurantId)
+    setPendingRestaurantId(null)
+  }
+
+  const handleCancelRestaurantChange = () => {
+    setPendingRestaurantId(null)
+  }
+
   useEffect(() => {
     if (auth && apiState === 'success') {
       loadData(apiUrl).catch(() => undefined)
@@ -252,14 +299,10 @@ export default function HomePage() {
       : 'Локальный тест'
     : 'Нет данных'
 
-  const hasMultipleRestaurants = restaurants.length > 1
   const stepTabs = [
-    { id: 'slot', label: 'Слот', disabled: false },
-    ...(hasMultipleRestaurants
-      ? [{ id: 'restaurants' as const, label: 'Ресторан', disabled: !selectedSlot }]
-      : []),
-    { id: 'menu', label: 'Меню', disabled: !selectedSlot },
-    { id: 'order', label: 'Заказ', disabled: !selectedSlot || cart.length === 0 },
+    { id: 'slot', label: 'Главная', disabled: false },
+    { id: 'menu', label: 'Меню', disabled: false },
+    { id: 'order', label: 'Заказ', disabled: false },
     {
       id: 'tracking',
       label: 'Статус',
@@ -327,16 +370,8 @@ export default function HomePage() {
       
       {activeScreen === 'slot' && (
         <SlotScreen
-          onNext={() =>
-            setActiveScreen(hasMultipleRestaurants ? 'restaurants' : 'menu')
-          }
-        />
-      )}
-
-      {activeScreen === 'restaurants' && (
-        <RestaurantsScreen
-          onBack={() => setActiveScreen('slot')}
-          onOpenMenu={() => setActiveScreen('menu')}
+          onSelectRestaurant={handleSelectRestaurant}
+          onSelectSlot={handleSlotSelected}
         />
       )}
 
@@ -362,6 +397,17 @@ export default function HomePage() {
       
       {activeScreen === 'history' && <HistoryScreen />}
       
+      {pendingRestaurantId !== null && (
+        <ConfirmDialog
+          title="Сменить ресторан?"
+          message="У вас есть заказ из другого ресторана. При смене ресторана текущий заказ будет очищен."
+          confirmLabel="Очистить и продолжить"
+          cancelLabel="Отмена"
+          onConfirm={handleConfirmRestaurantChange}
+          onCancel={handleCancelRestaurantChange}
+        />
+      )}
+
       {activeScreen === 'test' && !IS_PRODUCTION ? (
         <>
           <div className="card card-soft">

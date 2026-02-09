@@ -150,6 +150,47 @@ export function StepTabs({
   )
 }
 
+type ConfirmDialogProps = {
+  title: string
+  message: string
+  confirmLabel?: string
+  cancelLabel?: string
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+export function ConfirmDialog({
+  title,
+  message,
+  confirmLabel = 'Подтвердить',
+  cancelLabel = 'Отмена',
+  onConfirm,
+  onCancel,
+}: ConfirmDialogProps) {
+  return (
+    <div
+      className="dialog-overlay"
+      onClick={onCancel}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="dialog-card" onClick={(e) => e.stopPropagation()}>
+        <div className="dialog-title">{title}</div>
+        <div className="dialog-message">{message}</div>
+        <div className="dialog-actions">
+          <button type="button" className="btn-secondary" onClick={onCancel}>
+            {cancelLabel}
+          </button>
+          <button type="button" className="btn" onClick={onConfirm}>
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function Stepper({
   value,
   onDecrease,

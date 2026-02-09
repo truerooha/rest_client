@@ -39,7 +39,6 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     [menuItems, selectedRestaurantId],
   )
   
-  const orderSlotLabel = selectedSlot ? `Доставка в ${selectedSlot}` : 'Слот не выбран'
   const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
   const cartTotals = useMemo(
     () => calculateOrderTotals(cart, 1),
@@ -59,41 +58,38 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     return () => clearTimeout(t)
   }, [cart.length, cartTotals.total])
 
-  if (!selectedSlot) {
+  if (activeMenuItems.length === 0) {
     return (
       <Section title="Меню ресторана">
         <EmptyState
-          emoji="📅"
-          title="Сначала выберите слот"
-          description="После выбора слота откроется меню"
-          action={{
-            label: 'Перейти к выбору слота',
-            onClick: onGoToSlot,
-          }}
-        />
-      </Section>
-    )
-  }
-  
-  if (activeMenuItems.length === 0) {
-    return (
-      <Section title="Меню ресторана" subtitle={orderSlotLabel}>
-        <EmptyState
           emoji="🍽️"
-          title="Меню пока пусто"
-          description="Скоро здесь появятся доступные блюда"
+          title={!selectedRestaurantId ? 'Выберите ресторан' : 'Меню пока пусто'}
+          description={
+            !selectedRestaurantId
+              ? 'Перейдите на Главную и выберите ресторан'
+              : 'Скоро здесь появятся доступные блюда'
+          }
+          action={
+            !selectedRestaurantId
+              ? { label: 'На Главную', onClick: onGoToSlot }
+              : undefined
+          }
         />
       </Section>
     )
   }
   
   return (
-    <Section title="Меню ресторана" subtitle={orderSlotLabel}>
-      <StatusBanner icon="🕒">
-        {selectedSlotData
-          ? `Принять заказ до ${selectedSlotData.deadline}. Добавьте блюда`
-          : 'Слот выбран. Добавьте блюда'}
-      </StatusBanner>
+    <Section title="Меню ресторана">
+      {selectedSlot && selectedSlotData ? (
+        <StatusBanner icon="🕒">
+          Принять заказ до {selectedSlotData.deadline}. Добавьте блюда
+        </StatusBanner>
+      ) : (
+        <StatusBanner icon="📅" variant="warning">
+          Слот доставки не выбран
+        </StatusBanner>
+      )}
       <MenuGrid
         menuItems={activeMenuItems}
         onAddToCart={addToCart}
