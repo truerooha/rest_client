@@ -208,15 +208,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const createOrder = useCallback(
     async (apiUrl: string): Promise<Order> => {
-      if (
-        !auth ||
-        !apiUser ||
-        !selectedSlot ||
-        !selectedRestaurantId ||
-        !selectedBuildingId ||
-        cart.length === 0
-      ) {
-        throw new Error('Missing required order data')
+      const missing: string[] = []
+      if (!auth) missing.push('авторизация')
+      if (!apiUser) missing.push('профиль пользователя')
+      if (!selectedSlot) missing.push('слот доставки')
+      if (!selectedRestaurantId) missing.push('ресторан')
+      if (!selectedBuildingId) missing.push('офис')
+      if (cart.length === 0) missing.push('позиции в корзине')
+
+      if (missing.length > 0) {
+        throw new Error(`Не хватает данных для заказа: ${missing.join(', ')}`)
       }
       const { total: totalPrice } = calculateOrderTotals(cart, 1)
       const itemsPayload = cart.map((entry) => ({

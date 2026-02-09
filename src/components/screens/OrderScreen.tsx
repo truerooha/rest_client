@@ -17,6 +17,7 @@ type OrderScreenProps = {
 export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   const {
     auth,
+    apiUser,
     selectedSlot,
     deliverySlots,
     selectedRestaurantId,
@@ -38,6 +39,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   
   const missingReasons = [
     !auth ? 'авторизоваться в Telegram' : null,
+    !apiUser ? 'дождаться загрузки профиля' : null,
     !selectedSlot ? 'выбрать слот' : null,
     !selectedRestaurantId ? 'выбрать ресторан' : null,
     !selectedBuildingId ? 'выбрать офис' : null,
