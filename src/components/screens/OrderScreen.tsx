@@ -31,6 +31,22 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
+  const mapErrorMessage = (raw: string): string => {
+    // Человекочитаемые сообщения вместо технических кодов ошибок
+    switch (raw) {
+      case 'draft_delete_failed':
+        return 'Заказ оформлен, но не удалось очистить черновик. Это не влияет на ваш заказ, но корзина может отображаться некорректно.'
+      case 'user_order_already_exists_for_slot':
+        return 'У вас уже есть активный заказ на этот слот для выбранного ресторана и офиса. Повторный заказ недоступен.'
+      case 'order_create_failed':
+        return 'Не удалось создать заказ. Попробуйте ещё раз или обратитесь к администратору.'
+      case 'pay_failed':
+        return 'Не удалось оплатить заказ. Проверьте баланс и попробуйте ещё раз.'
+      default:
+        return raw
+    }
+  }
+  
   const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
   const isDeadlineOver = selectedSlotData
     ? isDeadlinePassed(selectedSlotData.deadline)
@@ -76,8 +92,9 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
         onOrderCreated()
       }
     } catch (error) {
-      const msg =
+      const raw =
         error instanceof Error ? error.message : 'Не удалось оформить заказ. Попробуйте ещё раз.'
+      const msg = mapErrorMessage(raw)
       setErrorMessage(msg)
     } finally {
       setIsProcessing(false)
