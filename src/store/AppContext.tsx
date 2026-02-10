@@ -228,6 +228,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (selectedRestaurantId == null || selectedBuildingId == null) {
         throw new Error('Не выбран ресторан или офис для заказа')
       }
+      if (selectedSlot == null) {
+        throw new Error('Слот доставки не выбран')
+      }
 
       const { total: totalPrice } = calculateOrderTotals(cart, 1)
       const itemsPayload = cart.map((entry) => ({
