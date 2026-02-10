@@ -247,7 +247,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         throw new Error(msg)
       }
-      await deleteDraft(apiUrl, auth.user.id)
+      try {
+        await deleteDraft(apiUrl, auth.user.id)
+      } catch {
+        // Ошибка удаления черновика не должна ломать успешный заказ
+      }
       const order: Order = {
         id: String(created.id),
         userId: apiUser.id,
