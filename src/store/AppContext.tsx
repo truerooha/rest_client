@@ -222,6 +222,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       // Дополнительная защита от null для TypeScript и рантайма:
+      if (!auth) {
+        throw new Error('Пользователь не авторизован')
+      }
       if (!apiUser) {
         throw new Error('Профиль пользователя не загружен')
       }
