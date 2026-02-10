@@ -305,3 +305,40 @@ export async function fetchGroupOrder(
   }
   return json.data
 }
+
+type ActiveOrderResponse = {
+  id: number
+  user_id: number
+  restaurant_id: number
+  building_id: number
+  items: Array<{
+    id: number
+    name: string
+    price: number
+    quantity: number
+  }>
+  total_price: number
+  delivery_slot: string
+  status: string
+  created_at: string
+}
+
+export async function fetchActiveOrderForSlot(
+  apiUrl: string,
+  userId: number,
+  deliverySlot: string,
+  buildingId: number,
+  restaurantId: number,
+): Promise<ActiveOrderResponse | null> {
+  const params = new URLSearchParams({
+    deliverySlot,
+    buildingId: String(buildingId),
+    restaurantId: String(restaurantId),
+  })
+  const res = await fetch(`${apiUrl}/api/users/${userId}/active-order?${params.toString()}`)
+  const json = (await res.json()) as ApiResponse<ActiveOrderResponse | null>
+  if (!res.ok || !json.success) {
+    throw new Error(json.error ?? 'active_order_fetch_failed')
+  }
+  return json.data ?? null
+}

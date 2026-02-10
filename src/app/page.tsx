@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { AppBar, ContextCard, StepTabs, SecondaryButton, ConfirmDialog, LoadingScreen } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
@@ -52,10 +52,12 @@ export default function HomePage() {
   const [authError, setAuthError] = useState<string | null>(null)
   
   const [pendingRestaurantId, setPendingRestaurantId] = useState<number | null>(null)
+  const [initializedFromDraft, setInitializedFromDraft] = useState(false)
 
   const {
     auth,
     setAuth,
+    apiUser,
     selectedBuildingId,
     selectedRestaurantId,
     selectedSlot,
@@ -80,6 +82,7 @@ export default function HomePage() {
     setApiError,
     setSelectedBuildingId,
     setSelectedRestaurantId,
+    setCurrentOrder,
   } = useApp()
   
   useEffect(() => {
@@ -215,9 +218,72 @@ export default function HomePage() {
     applyRestaurantSelection(restaurantId)
   }
 
-  const handleSlotSelected = (slotId: string) => {
+  const checkAndLoadActiveOrderForSlot = useCallback(
+    async (slotId: string): Promise<boolean> => {
+      if (
+        !apiUser ||
+        !selectedBuildingId ||
+        !selectedRestaurantId ||
+        !apiUrl
+      ) {
+        return false
+      }
+      try {
+        const active = await fetchActiveOrderForSlot(
+          apiUrl,
+          apiUser.id,
+          slotId,
+          selectedBuildingId,
+          selectedRestaurantId,
+        )
+        if (!active) {
+          setCurrentOrder(null)
+          return false
+        }
+
+        // Маппим ответ API в формат Order контекста
+        setCurrentOrder({
+          id: String(active.id),
+          userId: apiUser.id,
+          restaurantId: active.restaurant_id,
+          buildingId: active.building_id,
+          items: active.items.map((row) => ({
+            item: {
+              id: row.id,
+              name: row.name,
+              price: row.price,
+              description: '',
+              unit: '1 порция',
+              category: 'Другое',
+              emoji: '🍽️',
+              restaurantId: active.restaurant_id,
+            },
+            qty: row.quantity,
+          })),
+          totalPrice: active.total_price,
+          deliverySlot: active.delivery_slot,
+          status: active.status as any,
+          createdAt: active.created_at,
+        })
+        return true
+      } catch {
+        // В случае ошибки не блокируем работу пользователя
+        return false
+      }
+    },
+    [apiUser, apiUrl, selectedBuildingId, selectedRestaurantId, setCurrentOrder],
+  )
+
+  const handleSlotSelected = async (slotId: string) => {
     setSelectedSlot(slotId)
-    if (selectedRestaurantId) {
+    const hasActiveOrder = await checkAndLoadActiveOrderForSlot(slotId)
+    if (hasActiveOrder) {
+      setActiveScreen('tracking')
+      return
+    }
+    if (cart.length > 0) {
+      setActiveScreen('order')
+    } else if (selectedRestaurantId) {
       setActiveScreen('menu')
     }
   }
@@ -238,6 +304,44 @@ export default function HomePage() {
       loadData(apiUrl).catch(() => undefined)
     }
   }, [auth?.user.id, apiState])
+
+  // Инициализация экрана после восстановления черновика/слота
+  useEffect(() => {
+    if (initializedFromDraft) return
+    if (!auth || apiState !== 'success') return
+
+    // Если уже есть активный заказ для слота — показываем сразу "Статус"
+    if (
+      currentOrder &&
+      selectedSlot &&
+      currentOrder.deliverySlot === selectedSlot
+    ) {
+      setActiveScreen('tracking')
+      setInitializedFromDraft(true)
+      return
+    }
+
+    // Если восстановлен черновик: слот ещё актуален → сразу на "Заказ"
+    if (cart.length > 0 && selectedSlot) {
+      setActiveScreen('order')
+      setInitializedFromDraft(true)
+      return
+    }
+
+    // Если слот из черновика протух и был сброшен, но корзина есть —
+    // начинаем с Главной, а после выбора слота перейдём в "Заказ".
+    if (cart.length > 0 && !selectedSlot) {
+      setActiveScreen('slot')
+      setInitializedFromDraft(true)
+    }
+  }, [
+    auth,
+    apiState,
+    cart.length,
+    selectedSlot,
+    currentOrder,
+    initializedFromDraft,
+  ])
 
   useEffect(() => {
     if (
@@ -299,10 +403,16 @@ export default function HomePage() {
       : 'Локальный тест'
     : 'Нет данных'
 
+  const hasLockedOrderForSlot =
+    !!currentOrder &&
+    !!selectedSlot &&
+    currentOrder.deliverySlot === selectedSlot &&
+    ['confirmed', 'preparing', 'ready'].includes(currentOrder.status)
+
   const stepTabs = [
     { id: 'slot', label: 'Главная', disabled: false },
-    { id: 'menu', label: 'Меню', disabled: false },
-    { id: 'order', label: 'Заказ', disabled: false },
+    { id: 'menu', label: 'Меню', disabled: hasLockedOrderForSlot },
+    { id: 'order', label: 'Заказ', disabled: hasLockedOrderForSlot },
     {
       id: 'tracking',
       label: 'Статус',

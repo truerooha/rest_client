@@ -27,7 +27,7 @@ import { isDeadlinePassed, calculateOrderTotals } from "../lib/order-utils"
 
 type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
 
-type Order = {
+export type Order = {
   id: string
   userId: number
   restaurantId: number
@@ -100,6 +100,7 @@ type AppState = {
   setApiState: (state: ApiState) => void
   setApiError: (error: string | null) => void
   setGroupOrder: (groupOrder: GroupOrder | null) => void
+  setCurrentOrder: (order: Order | null) => void
 }
 
 const AppContext = createContext<AppState | null>(null)
@@ -323,6 +324,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setApiState,
     setApiError,
     setGroupOrder,
+    setCurrentOrder,
   }
   
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
