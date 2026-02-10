@@ -221,11 +221,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         throw new Error(`Не хватает данных для заказа: ${missing.join(', ')}`)
       }
 
-      // Дополнительная защита от null для TypeScript:
-      // на этом этапе мы уже выбросили ошибку, если apiUser отсутствует,
-      // поэтому дальше можно безопасно работать с apiUser.id
+      // Дополнительная защита от null для TypeScript и рантайма:
       if (!apiUser) {
         throw new Error('Профиль пользователя не загружен')
+      }
+      if (selectedRestaurantId == null || selectedBuildingId == null) {
+        throw new Error('Не выбран ресторан или офис для заказа')
       }
 
       const { total: totalPrice } = calculateOrderTotals(cart, 1)
