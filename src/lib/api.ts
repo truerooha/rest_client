@@ -325,7 +325,7 @@ type ActiveOrderResponse = {
 
 export async function fetchActiveOrderForSlot(
   apiUrl: string,
-  userId: number,
+  telegramUserId: number,
   deliverySlot: string,
   buildingId: number,
   restaurantId: number,
@@ -335,7 +335,9 @@ export async function fetchActiveOrderForSlot(
     buildingId: String(buildingId),
     restaurantId: String(restaurantId),
   })
-  const res = await fetch(`${apiUrl}/api/users/${userId}/active-order?${params.toString()}`)
+  const res = await fetch(
+    `${apiUrl}/api/users/by-telegram/${telegramUserId}/active-order?${params.toString()}`,
+  )
   const json = (await res.json()) as ApiResponse<ActiveOrderResponse | null>
   if (!res.ok || !json.success) {
     throw new Error(json.error ?? 'active_order_fetch_failed')

@@ -20,6 +20,7 @@ import {
   fetchDeliverySlots,
   fetchGroupOrder,
   putDraft,
+  fetchActiveOrderForSlot,
 } from '../lib/api'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
@@ -57,7 +58,6 @@ export default function HomePage() {
   const {
     auth,
     setAuth,
-    apiUser,
     selectedBuildingId,
     selectedRestaurantId,
     selectedSlot,
@@ -221,7 +221,7 @@ export default function HomePage() {
   const checkAndLoadActiveOrderForSlot = useCallback(
     async (slotId: string): Promise<boolean> => {
       if (
-        !apiUser ||
+        !auth ||
         !selectedBuildingId ||
         !selectedRestaurantId ||
         !apiUrl
@@ -231,7 +231,7 @@ export default function HomePage() {
       try {
         const active = await fetchActiveOrderForSlot(
           apiUrl,
-          apiUser.id,
+          auth.user.id,
           slotId,
           selectedBuildingId,
           selectedRestaurantId,
@@ -244,7 +244,7 @@ export default function HomePage() {
         // Маппим ответ API в формат Order контекста
         setCurrentOrder({
           id: String(active.id),
-          userId: apiUser.id,
+          userId: active.user_id,
           restaurantId: active.restaurant_id,
           buildingId: active.building_id,
           items: active.items.map((row) => ({
@@ -271,7 +271,7 @@ export default function HomePage() {
         return false
       }
     },
-    [apiUser, apiUrl, selectedBuildingId, selectedRestaurantId, setCurrentOrder],
+    [auth, apiUrl, selectedBuildingId, selectedRestaurantId, setCurrentOrder],
   )
 
   const handleSlotSelected = async (slotId: string) => {
