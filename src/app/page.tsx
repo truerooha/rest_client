@@ -366,7 +366,7 @@ export default function HomePage() {
         })
       })
       .catch(() => setGroupOrder(null))
-  }, [selectedSlot, selectedBuildingId, selectedRestaurantId, apiUrl, setGroupOrder])
+  }, [selectedSlot, selectedBuildingId, selectedRestaurantId, apiUrl, setGroupOrder, currentOrder?.id])
 
   useEffect(() => {
     if (!auth || !apiUrl) return
