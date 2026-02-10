@@ -34,10 +34,14 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
     )
   }
   
+  const isFormingPhase =
+    slotData && !isDeadlinePassed(slotData.deadline) && currentOrder.status === 'confirmed'
+
   const getStatusLabel = (status: string) => {
+    if (status === 'pending' || (status === 'confirmed' && isFormingPhase)) {
+      return 'Формируется общий заказ'
+    }
     switch (status) {
-      case 'pending':
-        return 'Ожидает подтверждения'
       case 'confirmed':
         return 'Подтверждён рестораном'
       case 'preparing':
@@ -75,7 +79,9 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
           Доставка в {currentOrder.deliverySlot}
         </div>
         
-        <OrderStatusTimeline currentStatus={currentOrder.status} />
+        <OrderStatusTimeline
+          currentStatus={isFormingPhase ? 'pending' : currentOrder.status}
+        />
         
         <div className="divider" />
         
@@ -127,6 +133,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
           participantCount={groupOrder.participantCount}
           totalAmount={groupOrder.totalAmount}
           minimumAmount={groupOrder.minimumAmount}
+          slotDeadline={slotData?.deadline}
         />
       ) : null}
     </Section>

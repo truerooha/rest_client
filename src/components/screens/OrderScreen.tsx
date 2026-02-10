@@ -109,7 +109,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
     <Section title="Ваш заказ" subtitle={orderSlotLabel}>
       <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} variant={isCancelAvailable ? 'default' : 'warning'}>
         {isCancelAvailable
-          ? `Принять заказ до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}. Отмена возможна до этого времени`
+          ? `Заказ принимается до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}. Отмена возможна до этого времени`
           : 'Время приёма заказов прошло. Отмена и правки недоступны'}
       </StatusBanner>
       {!isCancelAvailable && (
@@ -151,6 +151,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
           participantCount={groupOrder?.participantCount ?? 1}
           totalAmount={groupOrder?.totalAmount ?? 0}
           minimumAmount={groupOrder?.minimumAmount}
+          slotDeadline={selectedSlotData?.deadline}
         />
       </div>
     </Section>

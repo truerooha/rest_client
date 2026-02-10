@@ -83,7 +83,7 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     <Section title="Меню ресторана">
       {selectedSlot && selectedSlotData ? (
         <StatusBanner icon="🕒">
-          Принять заказ до {selectedSlotData.deadline}. Добавьте блюда
+          Заказ принимается до {selectedSlotData.deadline}. Добавьте блюда
         </StatusBanner>
       ) : (
         <StatusBanner icon="📅" variant="warning">

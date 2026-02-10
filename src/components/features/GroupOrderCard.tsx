@@ -7,20 +7,24 @@ type GroupOrderCardProps = {
   participantCount: number
   totalAmount: number
   minimumAmount?: number
+  /** Дедлайн слота доставки (например "23:00"). Если не указан — используется ORDER_CONFIG.cancelDeadline */
+  slotDeadline?: string
 }
 
 export function GroupOrderCard({
   participantCount,
   totalAmount,
   minimumAmount,
+  slotDeadline,
 }: GroupOrderCardProps) {
   const remaining = minimumAmount ? Math.max(minimumAmount - totalAmount, 0) : 0
-  
+  const deadline = slotDeadline ?? ORDER_CONFIG.cancelDeadline
+
   return (
     <Card className="card-soft">
       <div style={{ fontWeight: 600 }}>Общий заказ офиса</div>
       <div className="order-muted" style={{ marginTop: 4 }}>
-        Принять заказ до {ORDER_CONFIG.cancelDeadline}
+        Заказ принимается до {deadline}
       </div>
       <div className="divider" />
       <div className="order-summary">
