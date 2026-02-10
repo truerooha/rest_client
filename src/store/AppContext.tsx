@@ -220,6 +220,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (missing.length > 0) {
         throw new Error(`Не хватает данных для заказа: ${missing.join(', ')}`)
       }
+
+      // Дополнительная защита от null для TypeScript:
+      // на этом этапе мы уже выбросили ошибку, если apiUser отсутствует,
+      // поэтому дальше можно безопасно работать с apiUser.id
+      if (!apiUser) {
+        throw new Error('Профиль пользователя не загружен')
+      }
+
       const { total: totalPrice } = calculateOrderTotals(cart, 1)
       const itemsPayload = cart.map((entry) => ({
         id: entry.item.id,
