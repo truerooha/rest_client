@@ -5,7 +5,7 @@ import { Section, Card, EmptyState, StatusBanner, SecondaryButton } from '../ui'
 import { OrderStatusTimeline } from '../features/OrderStatusTimeline'
 import { GroupOrderCard } from '../features/GroupOrderCard'
 import { useApp } from '../../store/AppContext'
-import { formatPrice, isDeadlinePassed } from '../../lib/order-utils'
+import { formatPrice, isDeadlinePassed, calculateOrderTotals } from '../../lib/order-utils'
 
 type TrackingScreenProps = {
   apiUrl: string
@@ -36,6 +36,8 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
   
   const isFormingPhase =
     slotData && !isDeadlinePassed(slotData.deadline) && currentOrder.status === 'confirmed'
+
+  const { discount } = calculateOrderTotals(currentOrder.items, 1)
 
   const getStatusLabel = (status: string) => {
     if (status === 'pending' || (status === 'confirmed' && isFormingPhase)) {
@@ -98,6 +100,19 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
               <span>{formatPrice(item.item.price * item.qty)}</span>
             </div>
           ))}
+          {discount > 0 ? (
+            <div
+              className="row"
+              style={{
+                justifyContent: 'space-between',
+                fontSize: 14,
+                color: 'var(--success)',
+              }}
+            >
+              <span>Скидка</span>
+              <span>-{formatPrice(discount)}</span>
+            </div>
+          ) : null}
         </div>
         
         <div className="divider" />
