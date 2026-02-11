@@ -9,7 +9,7 @@ type StatusStep = {
 
 const STATUS_STEPS: StatusStep[] = [
   { id: 'pending', label: 'Ожидает' },
-  { id: 'confirmed', label: 'Подтверждён' },
+  { id: 'restaurant_confirmed', label: 'Подтверждён рестораном' },
   { id: 'preparing', label: 'Готовится' },
   { id: 'ready', label: 'Готов' },
   { id: 'delivered', label: 'Доставлен' },
@@ -20,7 +20,8 @@ type OrderStatusTimelineProps = {
 }
 
 export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps) {
-  const currentIndex = STATUS_STEPS.findIndex((step) => step.id === currentStatus)
+  const displayStatus = currentStatus === 'confirmed' ? 'restaurant_confirmed' : currentStatus
+  const currentIndex = STATUS_STEPS.findIndex((step) => step.id === displayStatus)
   const isCancelled = currentStatus === 'cancelled'
   
   if (isCancelled) {

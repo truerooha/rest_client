@@ -20,7 +20,6 @@ import {
   getDraft,
   deleteDraft,
   createOrder as createOrderApi,
-  payOrder,
   cancelOrderApi,
 } from "../lib/api"
 import { isDeadlinePassed, calculateOrderTotals } from "../lib/order-utils"
@@ -250,19 +249,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         totalPrice,
         deliverySlot: selectedSlot,
       })
-      try {
-        await payOrder(apiUrl, created.id, auth.user.id)
-      } catch (payErr) {
-        const msg =
-          payErr instanceof Error ? payErr.message : 'Недостаточно средств'
-        // Если оплата не прошла, помечаем заказ как отменён, чтобы он не попадал в общий заказ
-        try {
-          await cancelOrderApi(apiUrl, created.id, auth.user.id)
-        } catch {
-          // игнорируем ошибки отмены при неуспешной оплате
-        }
-        throw new Error(msg)
-      }
+      // [ВРЕМЕННО] Оплата отключена — заказ остаётся в статусе «Ожидает» (pending)
+      // try { await payOrder(...) } — заглушка, см. STATUS.md
       try {
         await deleteDraft(apiUrl, auth.user.id)
       } catch {
@@ -276,7 +264,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         items: [...cart],
         totalPrice,
         deliverySlot: selectedSlot,
-        status: 'confirmed',
+        status: (created.status as Order['status']) || 'pending',
         createdAt: new Date().toISOString(),
       }
       setCurrentOrder(order)

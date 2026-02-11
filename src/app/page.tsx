@@ -407,7 +407,7 @@ export default function HomePage() {
     !!currentOrder &&
     !!selectedSlot &&
     currentOrder.deliverySlot === selectedSlot &&
-    ['confirmed', 'preparing', 'ready'].includes(currentOrder.status)
+    ['pending', 'confirmed', 'restaurant_confirmed', 'preparing', 'ready'].includes(currentOrder.status)
 
   const stepTabs = [
     { id: 'slot', label: 'Главная', disabled: false },
@@ -416,11 +416,7 @@ export default function HomePage() {
     {
       id: 'tracking',
       label: 'Статус',
-      disabled: !(
-        currentOrder &&
-        currentOrder.status === 'confirmed' &&
-        (!groupOrder || groupOrder.minimumAmount <= 0 || groupOrder.totalAmount >= groupOrder.minimumAmount)
-      ),
+      disabled: !currentOrder,
     },
     { id: 'history', label: 'История', disabled: false },
   ] as const

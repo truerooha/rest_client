@@ -57,7 +57,14 @@ export type DeliverySlot = {
   isAvailable: boolean
 }
 
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'restaurant_confirmed'
+  | 'preparing'
+  | 'ready'
+  | 'delivered'
+  | 'cancelled'
 
 export type Order = {
   id: string
