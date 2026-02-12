@@ -300,8 +300,8 @@ a {
   position: absolute;
   right: 8px;
   bottom: 8px;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--primary);
   color: var(--white);
@@ -327,7 +327,7 @@ a {
   right: auto;
   bottom: 8px;
   width: 112px;
-  height: 38px;
+  height: 32px;
   border-radius: var(--radius-pill);
   background: var(--surface);
   color: var(--text-primary);
@@ -341,7 +341,7 @@ a {
   border: none;
   background: transparent;
   color: inherit;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -358,7 +358,13 @@ a {
 
 .product-card-action .stepper {
   background: transparent;
-  padding: 0 4px;
+  padding: 0 2px;
+}
+
+.product-card-action .stepper-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
 }
 
 .product-card-action--expanded .stepper {
