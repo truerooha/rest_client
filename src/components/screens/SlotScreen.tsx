@@ -8,9 +8,10 @@ import { isDeadlinePassed } from '../../lib/order-utils'
 type SlotScreenProps = {
   onSelectRestaurant: (restaurantId: number) => void
   onSelectSlot: (slotId: string) => void
+  userOrderSlotIds?: string[]
 }
 
-export function SlotScreen({ onSelectRestaurant, onSelectSlot }: SlotScreenProps) {
+export function SlotScreen({ onSelectRestaurant, onSelectSlot, userOrderSlotIds = [] }: SlotScreenProps) {
   const {
     deliverySlots,
     selectedSlot,
@@ -21,7 +22,9 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot }: SlotScreenProps
 
   const hasMultipleRestaurants = restaurants.length > 1
   const availableCount = deliverySlots.filter(
-    (slot) => slot.isAvailable && !isDeadlinePassed(slot.deadline, appTimezone),
+    (slot) =>
+      slot.isAvailable &&
+      !isDeadlinePassed(slot.deadline, appTimezone),
   ).length
 
   return (
@@ -78,6 +81,7 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot }: SlotScreenProps
             selectedSlot={selectedSlot}
             onSelectSlot={onSelectSlot}
             appTimezone={appTimezone}
+            userOrderSlotIds={userOrderSlotIds}
           />
         )}
       </Section>

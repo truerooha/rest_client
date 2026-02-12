@@ -339,6 +339,26 @@ type ActiveOrderResponse = {
   created_at: string
 }
 
+export async function fetchUserOrderSlots(
+  apiUrl: string,
+  telegramUserId: number,
+  buildingId: number,
+  restaurantId: number,
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    buildingId: String(buildingId),
+    restaurantId: String(restaurantId),
+  })
+  const res = await fetch(
+    `${apiUrl}/api/users/by-telegram/${telegramUserId}/order-slots?${params.toString()}`,
+  )
+  const json = (await res.json()) as ApiResponse<string[]>
+  if (!res.ok || !json.success || !json.data) {
+    return []
+  }
+  return json.data
+}
+
 export async function fetchActiveOrderForSlot(
   apiUrl: string,
   telegramUserId: number,

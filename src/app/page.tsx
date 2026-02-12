@@ -22,7 +22,9 @@ import {
   putDraft,
   fetchActiveOrderForSlot,
   fetchConfig,
+  fetchUserOrderSlots,
 } from '../lib/api'
+import { isDeadlinePassed } from '../lib/order-utils'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
 
@@ -85,6 +87,10 @@ export default function HomePage() {
     setSelectedRestaurantId,
     setCurrentOrder,
     setAppTimezone,
+    deliverySlots,
+    appTimezone,
+    userOrderSlotIds,
+    setUserOrderSlotIds,
   } = useApp()
   
   useEffect(() => {
@@ -309,6 +315,34 @@ export default function HomePage() {
     }
   }, [auth?.user.id, apiState])
 
+  useEffect(() => {
+    if (
+      !auth ||
+      apiState !== 'success' ||
+      !selectedBuildingId ||
+      !selectedRestaurantId
+    ) {
+      return
+    }
+    fetchUserOrderSlots(apiUrl, auth.user.id, selectedBuildingId, selectedRestaurantId)
+      .then(setUserOrderSlotIds)
+      .catch(() => setUserOrderSlotIds([]))
+  }, [auth?.user.id, selectedBuildingId, selectedRestaurantId, apiState, apiUrl])
+
+  useEffect(() => {
+    if (
+      !selectedSlot ||
+      !userOrderSlotIds.includes(selectedSlot) ||
+      !auth ||
+      !selectedBuildingId ||
+      !selectedRestaurantId ||
+      !apiUrl
+    ) {
+      return
+    }
+    checkAndLoadActiveOrderForSlot(selectedSlot).catch(() => undefined)
+  }, [selectedSlot, userOrderSlotIds, auth, selectedBuildingId, selectedRestaurantId, apiUrl, checkAndLoadActiveOrderForSlot])
+
   // Инициализация экрана после восстановления черновика/слота
   useEffect(() => {
     if (initializedFromDraft) return
@@ -409,16 +443,21 @@ export default function HomePage() {
       : 'Локальный тест'
     : 'Нет данных'
 
+  const selectedSlotObj = deliverySlots.find((s) => s.id === selectedSlot)
+  const selectedSlotDeadlinePassed =
+    !!selectedSlot && !!selectedSlotObj && isDeadlinePassed(selectedSlotObj.deadline, appTimezone)
   const hasLockedOrderForSlot =
     !!currentOrder &&
     !!selectedSlot &&
     currentOrder.deliverySlot === selectedSlot &&
     ['pending', 'confirmed', 'restaurant_confirmed', 'preparing', 'ready'].includes(currentOrder.status)
+  const hasLockedOrderOrDeadline =
+    hasLockedOrderForSlot || (!!selectedSlot && selectedSlotDeadlinePassed)
 
   const stepTabs = [
     { id: 'slot', label: 'Главная', disabled: false },
-    { id: 'menu', label: 'Меню', disabled: hasLockedOrderForSlot },
-    { id: 'order', label: 'Заказ', disabled: hasLockedOrderForSlot },
+    { id: 'menu', label: 'Меню', disabled: hasLockedOrderOrDeadline },
+    { id: 'order', label: 'Заказ', disabled: hasLockedOrderOrDeadline },
     {
       id: 'tracking',
       label: 'Статус',
@@ -476,6 +515,7 @@ export default function HomePage() {
           <SlotScreen
             onSelectRestaurant={handleSelectRestaurant}
             onSelectSlot={handleSlotSelected}
+            userOrderSlotIds={userOrderSlotIds}
           />
         )}
 

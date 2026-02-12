@@ -9,34 +9,50 @@ type SlotSelectorProps = {
   selectedSlot: string | null
   onSelectSlot: (slotId: string) => void
   appTimezone?: string
+  /** Слоты, где у пользователя уже есть заказ — остаются доступными для выбора (просмотр статуса) */
+  userOrderSlotIds?: string[]
 }
 
-export function SlotSelector({ slots, selectedSlot, onSelectSlot, appTimezone = 'Europe/Moscow' }: SlotSelectorProps) {
+export function SlotSelector({
+  slots,
+  selectedSlot,
+  onSelectSlot,
+  appTimezone = 'Europe/Moscow',
+  userOrderSlotIds = [],
+}: SlotSelectorProps) {
+  const userSlotsSet = new Set(userOrderSlotIds)
+
   return (
     <div className="slot-selector">
       {slots.map((slot) => {
         const deadlinePassed = isDeadlinePassed(slot.deadline, appTimezone)
-        const isAvailable = slot.isAvailable && !deadlinePassed
+        const hasUserOrder = userSlotsSet.has(slot.id)
+        const isAvailableForNewOrder = slot.isAvailable && !deadlinePassed
+        const isSelectable = isAvailableForNewOrder || hasUserOrder
 
         return (
           <Card
             key={slot.id}
-            className={`slot-card ${isAvailable ? '' : 'slot-disabled'} ${
+            className={`slot-card ${isSelectable ? '' : 'slot-disabled'} ${
               selectedSlot === slot.id ? 'slot-selected' : ''
             }`}
           >
             <div className="slot-time">{slot.time}</div>
             <div className="slot-note">
-              {deadlinePassed
-                ? 'Приём заказов завершён'
-                : isAvailable
-                  ? `Принять заказ до ${slot.deadline}`
-                  : 'Недоступно'}
+              {hasUserOrder
+                ? deadlinePassed
+                  ? 'Ваш заказ'
+                  : `Принять заказ до ${slot.deadline}`
+                : deadlinePassed
+                  ? 'Приём заказов завершён'
+                  : isAvailableForNewOrder
+                    ? `Принять заказ до ${slot.deadline}`
+                    : 'Недоступно'}
             </div>
             <SecondaryButton
               type="button"
-              onClick={() => isAvailable && onSelectSlot(slot.id)}
-              disabled={!isAvailable}
+              onClick={() => isSelectable && onSelectSlot(slot.id)}
+              disabled={!isSelectable}
               aria-pressed={selectedSlot === slot.id}
             >
               {selectedSlot === slot.id ? 'Выбрано' : 'Выбрать'}

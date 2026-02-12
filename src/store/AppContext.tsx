@@ -21,6 +21,7 @@ import {
   deleteDraft,
   createOrder as createOrderApi,
   cancelOrderApi,
+  fetchUserOrderSlots,
 } from "../lib/api"
 import { isDeadlinePassed, calculateOrderTotals } from "../lib/order-utils"
 
@@ -91,7 +92,11 @@ type AppState = {
   // Config (часовой пояс приложения)
   appTimezone: string
   setAppTimezone: (tz: string) => void
-  
+
+  // Слоты, где у пользователя есть заказ (для выбора на главной)
+  userOrderSlotIds: string[]
+  setUserOrderSlotIds: React.Dispatch<React.SetStateAction<string[]>>
+
   // Actions
   loadData: (apiUrl: string) => Promise<void>
   createOrder: (apiUrl: string) => Promise<Order>
@@ -130,6 +135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [apiState, setApiState] = useState<ApiState>('idle')
   const [apiError, setApiError] = useState<string | null>(null)
   const [appTimezone, setAppTimezone] = useState<string>(DEFAULT_APP_TIMEZONE)
+  const [userOrderSlotIds, setUserOrderSlotIds] = useState<string[]>([])
   
   const addToCart = useCallback((item: MenuItem) => {
     setCart((prev) => {
@@ -175,12 +181,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
         setApiUser({ id: user.id })
         const draft = await getDraft(apiUrl, auth.user.id)
+        const buildingId = draft?.building_id ?? selectedBuildingId
+        const restaurantId = draft?.restaurant_id ?? selectedRestaurantId
+        let userSlots: string[] = []
+        if (buildingId != null && restaurantId != null) {
+          userSlots = await fetchUserOrderSlots(apiUrl, auth.user.id, buildingId, restaurantId)
+          setUserOrderSlotIds(userSlots)
+        }
         if (draft) {
           if (draft.building_id != null) setSelectedBuildingId(draft.building_id)
           if (draft.restaurant_id != null) setSelectedRestaurantId(draft.restaurant_id)
           const slotDeadline =
             deliverySlots.find((s) => s.id === draft.delivery_slot)?.deadline
-          if (draft.delivery_slot && slotDeadline && isDeadlinePassed(slotDeadline, appTimezone)) {
+          const deadlinePassed =
+            draft.delivery_slot && slotDeadline && isDeadlinePassed(slotDeadline, appTimezone)
+          const hasOrderOnSlot = draft.delivery_slot ? userSlots.includes(draft.delivery_slot) : false
+          if (deadlinePassed && !hasOrderOnSlot) {
             setSelectedSlot(null)
           } else if (draft.delivery_slot) {
             setSelectedSlot(draft.delivery_slot)
@@ -206,12 +222,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setApiError('Не удалось загрузить данные пользователя')
       }
     },
-    [
-      auth,
-      selectedBuildingId,
-      deliverySlots,
-      appTimezone,
-    ],
+    [auth, selectedBuildingId, selectedRestaurantId, deliverySlots, appTimezone],
   )
 
   const createOrder = useCallback(
@@ -277,6 +288,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setCurrentOrder(order)
       setOrderHistory((prev) => [...prev, order])
+      setUserOrderSlotIds((prev) =>
+        prev.includes(selectedSlot) ? prev : [...prev, selectedSlot],
+      )
       clearCart()
       return order
     },
@@ -327,6 +341,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     apiError,
     appTimezone,
     setAppTimezone,
+    userOrderSlotIds,
+    setUserOrderSlotIds,
     loadData,
     createOrder,
     cancelOrder,
