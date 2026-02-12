@@ -24,6 +24,8 @@ import {
 } from "../lib/api"
 import { isDeadlinePassed, calculateOrderTotals } from "../lib/order-utils"
 
+const DEFAULT_APP_TIMEZONE = 'Europe/Moscow'
+
 type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
 
 export type Order = {
@@ -86,6 +88,10 @@ type AppState = {
   apiState: ApiState
   apiError: string | null
   
+  // Config (часовой пояс приложения)
+  appTimezone: string
+  setAppTimezone: (tz: string) => void
+  
   // Actions
   loadData: (apiUrl: string) => Promise<void>
   createOrder: (apiUrl: string) => Promise<Order>
@@ -123,6 +129,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [apiState, setApiState] = useState<ApiState>('idle')
   const [apiError, setApiError] = useState<string | null>(null)
+  const [appTimezone, setAppTimezone] = useState<string>(DEFAULT_APP_TIMEZONE)
   
   const addToCart = useCallback((item: MenuItem) => {
     setCart((prev) => {
@@ -173,7 +180,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (draft.restaurant_id != null) setSelectedRestaurantId(draft.restaurant_id)
           const slotDeadline =
             deliverySlots.find((s) => s.id === draft.delivery_slot)?.deadline
-          if (draft.delivery_slot && slotDeadline && isDeadlinePassed(slotDeadline)) {
+          if (draft.delivery_slot && slotDeadline && isDeadlinePassed(slotDeadline, appTimezone)) {
             setSelectedSlot(null)
           } else if (draft.delivery_slot) {
             setSelectedSlot(draft.delivery_slot)
@@ -203,6 +210,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       auth,
       selectedBuildingId,
       deliverySlots,
+      appTimezone,
     ],
   )
 
@@ -317,6 +325,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     groupOrder,
     apiState,
     apiError,
+    appTimezone,
+    setAppTimezone,
     loadData,
     createOrder,
     cancelOrder,

@@ -16,11 +16,12 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot }: SlotScreenProps
     selectedSlot,
     restaurants,
     selectedRestaurantId,
+    appTimezone,
   } = useApp()
 
   const hasMultipleRestaurants = restaurants.length > 1
   const availableCount = deliverySlots.filter(
-    (slot) => slot.isAvailable && !isDeadlinePassed(slot.deadline),
+    (slot) => slot.isAvailable && !isDeadlinePassed(slot.deadline, appTimezone),
   ).length
 
   return (
@@ -76,6 +77,7 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot }: SlotScreenProps
             slots={deliverySlots}
             selectedSlot={selectedSlot}
             onSelectSlot={onSelectSlot}
+            appTimezone={appTimezone}
           />
         )}
       </Section>

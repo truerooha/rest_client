@@ -36,18 +36,29 @@ export function formatPrice(price: number): string {
   return `${price} ₽`
 }
 
-export function isCancelDeadlinePassed(): boolean {
-  const [hours, minutes] = ORDER_CONFIG.cancelDeadline.split(':').map(Number)
-  const now = new Date()
-  const deadline = new Date()
-  deadline.setHours(hours, minutes, 0, 0)
-  return now.getTime() > deadline.getTime()
+/** Текущее время в минутах (часы*60+минуты) в заданном часовом поясе */
+function getNowMinutesInTimezone(timezone: string): number {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(new Date())
+  const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10)
+  const minute = parseInt(parts.find((p) => p.type === 'minute')?.value ?? '0', 10)
+  return hour * 60 + minute
 }
 
-export function isDeadlinePassed(deadlineTime: string): boolean {
+/** Проверяет, прошёл ли дедлайн отмены (10:30) в заданном часовом поясе */
+export function isCancelDeadlinePassed(timezone: string = 'Europe/Moscow'): boolean {
+  const [hours, minutes] = ORDER_CONFIG.cancelDeadline.split(':').map(Number)
+  const deadlineMinutes = hours * 60 + minutes
+  return getNowMinutesInTimezone(timezone) > deadlineMinutes
+}
+
+/** Проверяет, прошёл ли дедлайн слота в заданном часовом поясе */
+export function isDeadlinePassed(deadlineTime: string, timezone: string = 'Europe/Moscow'): boolean {
   const [hours, minutes] = deadlineTime.split(':').map(Number)
-  const now = new Date()
-  const deadline = new Date()
-  deadline.setHours(hours, minutes, 0, 0)
-  return now.getTime() > deadline.getTime()
+  const deadlineMinutes = hours * 60 + minutes
+  return getNowMinutesInTimezone(timezone) > deadlineMinutes
 }

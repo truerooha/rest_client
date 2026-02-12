@@ -35,6 +35,22 @@ const slotSchema = z.object({
   isAvailable: z.boolean(),
 })
 
+const configSchema = z.object({
+  timezone: z.string(),
+})
+
+export type AppConfig = z.infer<typeof configSchema>
+
+export async function fetchConfig(apiUrl: string): Promise<AppConfig> {
+  const res = await fetch(`${apiUrl}/api/config`)
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success || !json.data) {
+    return { timezone: 'Europe/Moscow' }
+  }
+  const parsed = configSchema.safeParse(json.data)
+  return parsed.success ? parsed.data : { timezone: 'Europe/Moscow' }
+}
+
 const categoryEmoji: Record<string, string> = {
   Супы: '🥣',
   Горячее: '🍲',

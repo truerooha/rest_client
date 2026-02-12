@@ -12,7 +12,7 @@ type TrackingScreenProps = {
 }
 
 export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
-  const { currentOrder, groupOrder, deliverySlots, cancelOrder } = useApp()
+  const { currentOrder, groupOrder, deliverySlots, cancelOrder, appTimezone } = useApp()
   const [cancelling, setCancelling] = useState(false)
   const slotData = currentOrder
     ? deliverySlots.find((s) => s.id === currentOrder.deliverySlot)
@@ -20,7 +20,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
   const canCancel =
     (currentOrder?.status === 'pending' || currentOrder?.status === 'confirmed') &&
     slotData &&
-    !isDeadlinePassed(slotData.deadline)
+    !isDeadlinePassed(slotData.deadline, appTimezone)
   
   if (!currentOrder) {
     return (

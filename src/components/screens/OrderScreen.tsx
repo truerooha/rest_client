@@ -26,6 +26,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
     updateCartQty,
     groupOrder,
     createOrder,
+    appTimezone,
   } = useApp()
   const [showCheckout, setShowCheckout] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -49,8 +50,8 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   
   const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
   const isDeadlineOver = selectedSlotData
-    ? isDeadlinePassed(selectedSlotData.deadline)
-    : isCancelDeadlinePassed()
+    ? isDeadlinePassed(selectedSlotData.deadline, appTimezone)
+    : isCancelDeadlinePassed(appTimezone)
   const isCancelAvailable = !isDeadlineOver
   
   const missingReasons = [

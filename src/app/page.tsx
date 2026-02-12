@@ -21,6 +21,7 @@ import {
   fetchGroupOrder,
   putDraft,
   fetchActiveOrderForSlot,
+  fetchConfig,
 } from '../lib/api'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
@@ -83,6 +84,7 @@ export default function HomePage() {
     setSelectedBuildingId,
     setSelectedRestaurantId,
     setCurrentOrder,
+    setAppTimezone,
   } = useApp()
   
   useEffect(() => {
@@ -115,6 +117,8 @@ export default function HomePage() {
     
     setApiState('loading')
     try {
+      const config = await fetchConfig(apiUrl)
+      setAppTimezone(config.timezone)
       const apiBuildings = await fetchBuildings(apiUrl)
       const buildingId = apiBuildings[0]?.id ?? 0
       if (!buildingId) {

@@ -8,13 +8,14 @@ type SlotSelectorProps = {
   slots: DeliverySlot[]
   selectedSlot: string | null
   onSelectSlot: (slotId: string) => void
+  appTimezone?: string
 }
 
-export function SlotSelector({ slots, selectedSlot, onSelectSlot }: SlotSelectorProps) {
+export function SlotSelector({ slots, selectedSlot, onSelectSlot, appTimezone = 'Europe/Moscow' }: SlotSelectorProps) {
   return (
     <div className="slot-selector">
       {slots.map((slot) => {
-        const deadlinePassed = isDeadlinePassed(slot.deadline)
+        const deadlinePassed = isDeadlinePassed(slot.deadline, appTimezone)
         const isAvailable = slot.isAvailable && !deadlinePassed
 
         return (
