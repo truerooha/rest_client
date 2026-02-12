@@ -41,9 +41,9 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
       case 'pending':
         return 'Ожидает'
       case 'confirmed':
-        return 'Подтверждён рестораном'
+        return 'Подтверждён'
       case 'restaurant_confirmed':
-        return 'Подтверждён рестораном'
+        return 'Подтверждён'
       case 'preparing':
         return 'Готовится'
       case 'ready':

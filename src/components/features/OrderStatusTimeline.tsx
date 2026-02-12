@@ -9,7 +9,7 @@ type StatusStep = {
 
 const STATUS_STEPS: StatusStep[] = [
   { id: 'pending', label: 'Ожидает' },
-  { id: 'restaurant_confirmed', label: 'Подтверждён рестораном' },
+  { id: 'restaurant_confirmed', label: 'Подтверждён' },
   { id: 'preparing', label: 'Готовится' },
   { id: 'ready', label: 'Готов' },
   { id: 'delivered', label: 'Доставлен' },

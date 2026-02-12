@@ -325,8 +325,9 @@ export default function HomePage() {
       return
     }
 
-    // Если восстановлен черновик: слот ещё актуален → сразу на "Заказ"
-    if (cart.length > 0 && selectedSlot) {
+    // Если восстановлен черновик: слот ещё актуален → сразу на "Заказ".
+    // Не переключаем при activeScreen === 'menu' — пользователь выбирает блюда, не отвлекаем.
+    if (cart.length > 0 && selectedSlot && activeScreen !== 'menu') {
       setActiveScreen('order')
       setInitializedFromDraft(true)
       return
@@ -345,6 +346,7 @@ export default function HomePage() {
     selectedSlot,
     currentOrder,
     initializedFromDraft,
+    activeScreen,
   ])
 
   useEffect(() => {
