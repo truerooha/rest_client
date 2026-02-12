@@ -8,7 +8,7 @@ export function LoadingScreen() {
     <div className="splash-screen" role="status" aria-live="polite" aria-busy="true">
       <div className="splash-inner">
         <div className="splash-logo" aria-hidden>
-          <div className="splash-logo-mark">О</div>
+          <div className="splash-logo-mark">🚚</div>
         </div>
 
         <div className="splash-copy">

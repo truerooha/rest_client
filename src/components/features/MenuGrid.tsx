@@ -137,7 +137,7 @@ export function MenuGrid({ menuItems, cart, onAddToCart, onUpdateQty, formatPric
                       )}
                     </div>
                   </div>
-                  <div style={{ fontWeight: 600 }}>{item.name}</div>
+                  <div style={{ fontWeight: 600, marginTop: 12 }}>{item.name}</div>
                   {item.description ? (
                     <div className="muted">{item.description}</div>
                   ) : null}

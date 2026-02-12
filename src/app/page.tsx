@@ -462,63 +462,55 @@ export default function HomePage() {
       </header>
 
       <div className="page-content">
-      <ContextCard
-        rows={[
-          { label: 'Офис', value: selectedBuilding?.name ?? '—' },
-          { label: 'Ресторан', value: selectedRestaurant?.name ?? '—' },
-          ...(selectedSlot ? [{ label: 'Слот', value: selectedSlot }] : []),
-        ]}
-      />
+        <ContextCard
+          rows={[
+            { label: 'Офис', value: selectedBuilding?.name ?? '—' },
+            { label: 'Ресторан', value: selectedRestaurant?.name ?? '—' },
+            ...(selectedSlot ? [{ label: 'Слот', value: selectedSlot }] : []),
+          ]}
+        />
 
-      {!IS_PRODUCTION ? (
-        <SecondaryButton type="button" onClick={() => setActiveScreen('test')}>
-          Тестовый экран
-        </SecondaryButton>
-      ) : null}
+        {activeScreen === 'slot' && (
+          <SlotScreen
+            onSelectRestaurant={handleSelectRestaurant}
+            onSelectSlot={handleSlotSelected}
+          />
+        )}
 
-      
-      
-      {activeScreen === 'slot' && (
-        <SlotScreen
-          onSelectRestaurant={handleSelectRestaurant}
-          onSelectSlot={handleSlotSelected}
-        />
-      )}
+        {activeScreen === 'menu' && (
+          <MenuScreen
+            onGoToSlot={() => setActiveScreen('slot')}
+            onNext={() => setActiveScreen('order')}
+          />
+        )}
+        
+        {activeScreen === 'order' && (
+          <OrderScreen
+            apiUrl={apiUrl}
+            onOrderCreated={() => setActiveScreen('tracking')}
+          />
+        )}
+        
+        {activeScreen === 'tracking' && (
+          <TrackingScreen
+            apiUrl={apiUrl}
+          />
+        )}
+        
+        {activeScreen === 'history' && <HistoryScreen />}
+        
+        {pendingRestaurantId !== null && (
+          <ConfirmDialog
+            title="Сменить ресторан?"
+            message="У вас есть заказ из другого ресторана. При смене ресторана текущий заказ будет очищен."
+            confirmLabel="Очистить и продолжить"
+            cancelLabel="Отмена"
+            onConfirm={handleConfirmRestaurantChange}
+            onCancel={handleCancelRestaurantChange}
+          />
+        )}
 
-      {activeScreen === 'menu' && (
-        <MenuScreen
-          onGoToSlot={() => setActiveScreen('slot')}
-          onNext={() => setActiveScreen('order')}
-        />
-      )}
-      
-      {activeScreen === 'order' && (
-        <OrderScreen
-          apiUrl={apiUrl}
-          onOrderCreated={() => setActiveScreen('tracking')}
-        />
-      )}
-      
-      {activeScreen === 'tracking' && (
-        <TrackingScreen
-          apiUrl={apiUrl}
-        />
-      )}
-      
-      {activeScreen === 'history' && <HistoryScreen />}
-      
-      {pendingRestaurantId !== null && (
-        <ConfirmDialog
-          title="Сменить ресторан?"
-          message="У вас есть заказ из другого ресторана. При смене ресторана текущий заказ будет очищен."
-          confirmLabel="Очистить и продолжить"
-          cancelLabel="Отмена"
-          onConfirm={handleConfirmRestaurantChange}
-          onCancel={handleCancelRestaurantChange}
-        />
-      )}
-
-      {activeScreen === 'test' && !IS_PRODUCTION ? (
+        {activeScreen === 'test' && !IS_PRODUCTION ? (
         <>
           <div className="card card-soft">
             <div className="section-title">Авторизация</div>
@@ -653,6 +645,12 @@ export default function HomePage() {
             </div>
           </div>
         </>
+      ) : null}
+
+      {!IS_PRODUCTION ? (
+        <SecondaryButton type="button" onClick={() => setActiveScreen('test')}>
+          Тестовый экран
+        </SecondaryButton>
       ) : null}
       </div>
     </>
