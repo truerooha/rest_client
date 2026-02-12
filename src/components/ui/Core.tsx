@@ -201,12 +201,24 @@ export function Stepper({
   onIncrease: () => void
 }) {
   return (
-    <div className="stepper">
-      <button type="button" onClick={onDecrease} className="stepper-btn">
+    <div className="stepper" role="group" aria-label="Количество">
+      <button
+        type="button"
+        onClick={onDecrease}
+        className="stepper-btn"
+        aria-label="Уменьшить количество"
+      >
         –
       </button>
-      <span className="stepper-value">{value}</span>
-      <button type="button" onClick={onIncrease} className="stepper-btn">
+      <span className="stepper-value" aria-live="polite">
+        {value}
+      </span>
+      <button
+        type="button"
+        onClick={onIncrease}
+        className="stepper-btn"
+        aria-label="Увеличить количество"
+      >
         +
       </button>
     </div>

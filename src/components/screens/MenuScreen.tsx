@@ -18,6 +18,7 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     menuItems,
     cart,
     addToCart,
+    updateCartQty,
     deliverySlots,
   } = useApp()
   
@@ -92,7 +93,9 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
       )}
       <MenuGrid
         menuItems={activeMenuItems}
+        cart={cart}
         onAddToCart={addToCart}
+        onUpdateQty={updateCartQty}
         formatPrice={formatPrice}
       />
       {cart.length > 0 ? (

@@ -1,27 +1,23 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
-import type { MenuItem } from '../../lib/types'
-import { Card, Badge, SecondaryButton, Chip, SearchBar } from '../ui'
-
-const ADDED_FEEDBACK_MS = 400
+import { useState, useMemo } from 'react'
+import type { MenuItem, CartItem } from '../../lib/types'
+import { Card, Badge, Chip, SearchBar, Stepper } from '../ui'
 
 type MenuGridProps = {
   menuItems: MenuItem[]
+  cart: CartItem[]
   onAddToCart: (item: MenuItem) => void
+  onUpdateQty: (itemId: number, delta: number) => void
   formatPrice: (price: number) => string
 }
 
-export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps) {
+export function MenuGrid({ menuItems, cart, onAddToCart, onUpdateQty, formatPrice }: MenuGridProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [lastAddedItemId, setLastAddedItemId] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (lastAddedItemId === null) return
-    const t = setTimeout(() => setLastAddedItemId(null), ADDED_FEEDBACK_MS)
-    return () => clearTimeout(t)
-  }, [lastAddedItemId])
+  const getCartQty = (itemId: number) =>
+    cart.find((e) => e.item.id === itemId)?.qty ?? 0
   
   const categories = useMemo(() => {
     const cats = new Set(menuItems.map((item) => item.category || 'Другое'))
@@ -120,6 +116,26 @@ export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps)
                         {item.emoji}
                       </span>
                     )}
+                    <div
+                      className={`product-card-action ${getCartQty(item.id) > 0 ? 'product-card-action--expanded' : ''}`}
+                    >
+                      {getCartQty(item.id) > 0 ? (
+                        <Stepper
+                          value={getCartQty(item.id)}
+                          onDecrease={() => onUpdateQty(item.id, -1)}
+                          onIncrease={() => onUpdateQty(item.id, 1)}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          className="product-card-add-btn"
+                          onClick={() => onAddToCart(item)}
+                          aria-label="Добавить в заказ"
+                        >
+                          +
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div style={{ fontWeight: 600 }}>{item.name}</div>
                   {item.description ? (
@@ -129,18 +145,6 @@ export function MenuGrid({ menuItems, onAddToCart, formatPrice }: MenuGridProps)
                     <span className="price">{formatPrice(item.price)}</span>
                     <Badge>{item.unit}</Badge>
                   </div>
-                  <SecondaryButton
-                    type="button"
-                    onClick={() => {
-                      onAddToCart(item)
-                      setLastAddedItemId(item.id)
-                    }}
-                    disabled={lastAddedItemId === item.id}
-                    aria-live="polite"
-                    aria-label={lastAddedItemId === item.id ? 'Добавлено в заказ' : 'Добавить в заказ'}
-                  >
-                    {lastAddedItemId === item.id ? '✓ Добавлено' : 'В заказ'}
-                  </SecondaryButton>
                 </div>
               ))}
             </div>

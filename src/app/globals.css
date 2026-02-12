@@ -284,6 +284,7 @@ a {
 
 /* Карточка блюда: место под фото (aspect ratio по design system) */
 .product-image-wrap {
+  position: relative;
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-md);
   background: var(--light-green);
@@ -292,6 +293,91 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Кнопка + / Stepper поверх фото: круг в углу → stepper внизу по центру */
+.product-card-action {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  transform: translateX(0);
+  transition: right 0.2s ease-out, bottom 0.2s ease-out,
+    left 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out,
+    border-radius 0.2s ease-out, background 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card-action {
+    transition: none;
+  }
+}
+
+.product-card-action--expanded {
+  left: 50%;
+  right: auto;
+  bottom: 8px;
+  width: 112px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
+}
+
+.product-card-add-btn {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.product-card-add-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.product-card-action .stepper {
+  background: transparent;
+  padding: 0 4px;
+}
+
+.product-card-action--expanded .stepper {
+  animation: product-card-stepper-fade-in 0.15s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card-action--expanded .stepper {
+    animation: none;
+  }
+}
+
+@keyframes product-card-stepper-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .product-image-img {
