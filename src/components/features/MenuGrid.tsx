@@ -10,9 +10,17 @@ type MenuGridProps = {
   onAddToCart: (item: MenuItem) => void
   onUpdateQty: (itemId: number, delta: number) => void
   formatPrice: (price: number) => string
+  disabledAddToCart?: boolean
 }
 
-export function MenuGrid({ menuItems, cart, onAddToCart, onUpdateQty, formatPrice }: MenuGridProps) {
+export function MenuGrid({
+  menuItems,
+  cart,
+  onAddToCart,
+  onUpdateQty,
+  formatPrice,
+  disabledAddToCart = false,
+}: MenuGridProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
@@ -122,14 +130,15 @@ export function MenuGrid({ menuItems, cart, onAddToCart, onUpdateQty, formatPric
                       {getCartQty(item.id) > 0 ? (
                         <Stepper
                           value={getCartQty(item.id)}
-                          onDecrease={() => onUpdateQty(item.id, -1)}
-                          onIncrease={() => onUpdateQty(item.id, 1)}
+                          onDecrease={disabledAddToCart ? () => {} : () => onUpdateQty(item.id, -1)}
+                          onIncrease={disabledAddToCart ? () => {} : () => onUpdateQty(item.id, 1)}
                         />
                       ) : (
                         <button
                           type="button"
                           className="product-card-add-btn"
-                          onClick={() => onAddToCart(item)}
+                          onClick={() => !disabledAddToCart && onAddToCart(item)}
+                          disabled={disabledAddToCart}
                           aria-label="Добавить в заказ"
                         >
                           +

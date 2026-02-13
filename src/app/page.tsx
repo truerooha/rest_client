@@ -23,6 +23,8 @@ import {
   fetchActiveOrderForSlot,
   fetchConfig,
   fetchUserOrderSlots,
+  joinLobby,
+  leaveLobby,
 } from '../lib/api'
 import { isDeadlinePassed } from '../lib/order-utils'
 import type { TgUser } from '../lib/types'
@@ -137,7 +139,11 @@ export default function HomePage() {
         throw new Error('no_restaurants')
       }
       
-      const apiSlots = await fetchDeliverySlots(apiUrl)
+      const apiSlots = await fetchDeliverySlots(apiUrl, {
+        buildingId,
+        restaurantId: firstRestaurantId,
+        telegramUserId: auth?.user.id ?? undefined,
+      })
       
       // Пытаемся найти ресторан с непустым меню
       let chosenRestaurant = apiRestaurants[0]
@@ -183,6 +189,25 @@ export default function HomePage() {
   useEffect(() => {
     handleApiLoad().catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    if (
+      !auth ||
+      apiState !== 'success' ||
+      !selectedBuildingId ||
+      !selectedRestaurantId ||
+      !apiUrl
+    ) {
+      return
+    }
+    fetchDeliverySlots(apiUrl, {
+      buildingId: selectedBuildingId,
+      restaurantId: selectedRestaurantId,
+      telegramUserId: auth.user.id,
+    })
+      .then(setDeliverySlots)
+      .catch(() => undefined)
+  }, [auth?.user.id, selectedBuildingId, selectedRestaurantId, apiState, apiUrl])
 
   useEffect(() => {
     if (
@@ -296,6 +321,28 @@ export default function HomePage() {
     } else if (selectedRestaurantId) {
       setActiveScreen('menu')
     }
+  }
+
+  const handleJoinLobby = async (slotId: string) => {
+    if (!auth || !selectedBuildingId || !selectedRestaurantId || !apiUrl) return
+    await joinLobby(apiUrl, auth.user.id, selectedBuildingId, selectedRestaurantId, slotId)
+    const slots = await fetchDeliverySlots(apiUrl, {
+      buildingId: selectedBuildingId,
+      restaurantId: selectedRestaurantId,
+      telegramUserId: auth.user.id,
+    })
+    setDeliverySlots(slots)
+  }
+
+  const handleLeaveLobby = async (slotId: string) => {
+    if (!auth || !selectedBuildingId || !selectedRestaurantId || !apiUrl) return
+    await leaveLobby(apiUrl, auth.user.id, selectedBuildingId, selectedRestaurantId, slotId)
+    const slots = await fetchDeliverySlots(apiUrl, {
+      buildingId: selectedBuildingId,
+      restaurantId: selectedRestaurantId,
+      telegramUserId: auth.user.id,
+    })
+    setDeliverySlots(slots)
   }
 
   const handleConfirmRestaurantChange = () => {
@@ -515,6 +562,12 @@ export default function HomePage() {
           <SlotScreen
             onSelectRestaurant={handleSelectRestaurant}
             onSelectSlot={handleSlotSelected}
+            onJoinLobby={auth ? handleJoinLobby : undefined}
+            onLeaveLobby={auth ? handleLeaveLobby : undefined}
+            onGoToMenu={(slotId) => {
+              setSelectedSlot(slotId)
+              setActiveScreen('menu')
+            }}
             userOrderSlotIds={userOrderSlotIds}
           />
         )}

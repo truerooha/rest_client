@@ -498,6 +498,45 @@ a {
   color: var(--gray);
 }
 
+.slot-in-lobby {
+  border-left: 3px solid var(--primary);
+}
+
+.slot-lobby-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.slot-lobby-count {
+  font-weight: 500;
+}
+
+.slot-delivery-price {
+  color: var(--primary);
+}
+
+.slot-lobby-badge {
+  margin-top: 4px;
+}
+
+.slot-actions {
+  margin-top: 4px;
+}
+
+.slot-activated-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.slot-banner-cta {
+  align-self: flex-start;
+}
+
 .order-grid {
   display: grid;
   gap: 16px;

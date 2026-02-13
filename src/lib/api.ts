@@ -33,6 +33,12 @@ const slotSchema = z.object({
   time: z.string(),
   deadline: z.string(),
   isAvailable: z.boolean(),
+  lobbyDeadline: z.string().optional(),
+  minParticipants: z.number().optional(),
+  currentParticipants: z.number().optional(),
+  deliveryPriceCents: z.number().optional(),
+  isActivated: z.boolean().optional(),
+  userInLobby: z.boolean().optional(),
 })
 
 const configSchema = z.object({
@@ -115,8 +121,22 @@ export async function fetchMenu(
   }))
 }
 
-export async function fetchDeliverySlots(apiUrl: string): Promise<DeliverySlot[]> {
-  const res = await fetch(`${apiUrl}/api/delivery-slots`)
+export async function fetchDeliverySlots(
+  apiUrl: string,
+  options?: {
+    buildingId?: number
+    restaurantId?: number
+    telegramUserId?: number
+  },
+): Promise<DeliverySlot[]> {
+  const params = new URLSearchParams()
+  if (options?.buildingId != null) params.set('buildingId', String(options.buildingId))
+  if (options?.restaurantId != null) params.set('restaurantId', String(options.restaurantId))
+  if (options?.telegramUserId != null)
+    params.set('telegram_user_id', String(options.telegramUserId))
+  const query = params.toString()
+  const url = query ? `${apiUrl}/api/delivery-slots?${query}` : `${apiUrl}/api/delivery-slots`
+  const res = await fetch(url)
   const json = (await res.json()) as ApiResponse<unknown>
   if (!res.ok || !json.success || !json.data) {
     throw new Error('delivery_slots_fetch_failed')
@@ -127,6 +147,52 @@ export async function fetchDeliverySlots(apiUrl: string): Promise<DeliverySlot[]
     throw new Error('delivery_slots_invalid')
   }
   return parsed.data
+}
+
+export async function joinLobby(
+  apiUrl: string,
+  telegramUserId: number,
+  buildingId: number,
+  restaurantId: number,
+  deliverySlot: string,
+): Promise<void> {
+  const res = await fetch(`${apiUrl}/api/lobby/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram_user_id: telegramUserId,
+      building_id: buildingId,
+      restaurant_id: restaurantId,
+      delivery_slot: deliverySlot,
+    }),
+  })
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success) {
+    throw new Error((json as { error?: string }).error ?? 'lobby_join_failed')
+  }
+}
+
+export async function leaveLobby(
+  apiUrl: string,
+  telegramUserId: number,
+  buildingId: number,
+  restaurantId: number,
+  deliverySlot: string,
+): Promise<void> {
+  const res = await fetch(`${apiUrl}/api/lobby/leave`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram_user_id: telegramUserId,
+      building_id: buildingId,
+      restaurant_id: restaurantId,
+      delivery_slot: deliverySlot,
+    }),
+  })
+  const json = (await res.json()) as ApiResponse<unknown>
+  if (!res.ok || !json.success) {
+    throw new Error((json as { error?: string }).error ?? 'lobby_leave_failed')
+  }
 }
 
 type CreateOrderPayload = {

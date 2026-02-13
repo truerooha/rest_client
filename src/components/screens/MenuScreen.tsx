@@ -80,9 +80,16 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
     )
   }
   
+  const hasLobby = selectedSlotData?.lobbyDeadline != null
+  const slotNotActivated = hasLobby && !selectedSlotData?.isActivated
+
   return (
     <Section title="Меню ресторана">
-      {selectedSlot && selectedSlotData ? (
+      {slotNotActivated ? (
+        <StatusBanner icon="⏳" variant="warning">
+          Слот ожидает активации. Дождитесь набора минимального количества участников.
+        </StatusBanner>
+      ) : selectedSlot && selectedSlotData ? (
         <StatusBanner icon="🕒">
           Заказ принимается до {selectedSlotData.deadline}. Добавьте блюда
         </StatusBanner>
@@ -97,6 +104,7 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
         onAddToCart={addToCart}
         onUpdateQty={updateCartQty}
         formatPrice={formatPrice}
+        disabledAddToCart={slotNotActivated}
       />
       {cart.length > 0 ? (
         <div
@@ -111,7 +119,11 @@ export function MenuScreen({ onGoToSlot, onNext }: MenuScreenProps) {
               {cart.length} · {formatPrice(cartTotals.total)}
             </span>
           </div>
-          <PrimaryButton type="button" onClick={onNext}>
+          <PrimaryButton
+            type="button"
+            onClick={onNext}
+            disabled={slotNotActivated}
+          >
             Перейти к заказу
           </PrimaryButton>
         </div>

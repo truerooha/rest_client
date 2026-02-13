@@ -1,6 +1,6 @@
 'use client'
 
-import { Section, EmptyState } from '../ui'
+import { Section, EmptyState, StatusBanner, PrimaryButton } from '../ui'
 import { SlotSelector } from '../features/SlotSelector'
 import { useApp } from '../../store/AppContext'
 import { isDeadlinePassed } from '../../lib/order-utils'
@@ -8,10 +8,20 @@ import { isDeadlinePassed } from '../../lib/order-utils'
 type SlotScreenProps = {
   onSelectRestaurant: (restaurantId: number) => void
   onSelectSlot: (slotId: string) => void
+  onJoinLobby?: (slotId: string) => Promise<void>
+  onLeaveLobby?: (slotId: string) => Promise<void>
+  onGoToMenu?: (slotId: string) => void
   userOrderSlotIds?: string[]
 }
 
-export function SlotScreen({ onSelectRestaurant, onSelectSlot, userOrderSlotIds = [] }: SlotScreenProps) {
+export function SlotScreen({
+  onSelectRestaurant,
+  onSelectSlot,
+  onJoinLobby,
+  onLeaveLobby,
+  onGoToMenu,
+  userOrderSlotIds = [],
+}: SlotScreenProps) {
   const {
     deliverySlots,
     selectedSlot,
@@ -27,8 +37,34 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot, userOrderSlotIds 
       !isDeadlinePassed(slot.deadline, appTimezone),
   ).length
 
+  const lobbySlot = deliverySlots.find((s) => s.userInLobby && !s.isActivated)
+  const activatedLobbySlot = deliverySlots.find((s) => s.userInLobby && s.isActivated)
+
   return (
     <>
+      {lobbySlot && (
+        <StatusBanner icon="👥">
+          Вы в лобби на {lobbySlot.time}. Нужно ещё{' '}
+          {(lobbySlot.minParticipants ?? 0) - (lobbySlot.currentParticipants ?? 0)} человек. До
+          активации до {lobbySlot.lobbyDeadline}.
+        </StatusBanner>
+      )}
+      {activatedLobbySlot && (
+        <div className="slot-activated-banner">
+          <StatusBanner icon="✅">
+            Слот {activatedLobbySlot.time} активирован. Выберите меню и оформите заказ.
+          </StatusBanner>
+          {onGoToMenu && (
+            <PrimaryButton
+              type="button"
+              onClick={() => onGoToMenu(activatedLobbySlot.id)}
+              className="slot-banner-cta"
+            >
+              К меню
+            </PrimaryButton>
+          )}
+        </div>
+      )}
       {hasMultipleRestaurants && (
         <Section title="Ресторан">
           <div className="restaurant-grid">
@@ -80,6 +116,8 @@ export function SlotScreen({ onSelectRestaurant, onSelectSlot, userOrderSlotIds 
             slots={deliverySlots}
             selectedSlot={selectedSlot}
             onSelectSlot={onSelectSlot}
+            onJoinLobby={onJoinLobby}
+            onLeaveLobby={onLeaveLobby}
             appTimezone={appTimezone}
             userOrderSlotIds={userOrderSlotIds}
           />

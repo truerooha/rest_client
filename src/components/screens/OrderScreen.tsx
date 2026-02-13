@@ -49,6 +49,8 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   }
   
   const selectedSlotData = deliverySlots.find((slot) => slot.id === selectedSlot)
+  const hasLobby = selectedSlotData?.lobbyDeadline != null
+  const slotNotActivated = hasLobby && !selectedSlotData?.isActivated
   const isDeadlineOver = selectedSlotData
     ? isDeadlinePassed(selectedSlotData.deadline, appTimezone)
     : isCancelDeadlinePassed(appTimezone)
@@ -60,6 +62,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
     !selectedSlot ? 'выбрать слот' : null,
     !selectedRestaurantId ? 'выбрать ресторан' : null,
     !selectedBuildingId ? 'выбрать офис' : null,
+    slotNotActivated ? 'дождаться активации слота' : null,
   ].filter(Boolean) as string[]
   
   const joinReasons = (reasons: string[]) => {

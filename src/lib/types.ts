@@ -55,6 +55,12 @@ export type DeliverySlot = {
   time: string
   deadline: string
   isAvailable: boolean
+  lobbyDeadline?: string
+  minParticipants?: number
+  currentParticipants?: number
+  deliveryPriceCents?: number
+  isActivated?: boolean
+  userInLobby?: boolean
 }
 
 export type OrderStatus =
