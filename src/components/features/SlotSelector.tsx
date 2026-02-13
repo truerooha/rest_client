@@ -111,62 +111,79 @@ export function SlotSelector({
         }
 
         const isLoading = loadingSlotId === slot.id
+        const isCompact =
+          cardDisabled ||
+          (!hasLobby && !isSelectable) ||
+          (hasLobby && lobbyDeadlinePassed && !isActivated)
+        const showLobbyHint =
+          hasLobby && !isActivated && !userInLobby && !lobbyDeadlinePassed
 
         return (
           <Card
             key={slot.id}
             className={`slot-card ${cardDisabled ? 'slot-disabled' : ''} ${
               selectedSlot === slot.id ? 'slot-selected' : ''
-            } ${userInLobby ? 'slot-in-lobby' : ''}`}
+            } ${userInLobby ? 'slot-in-lobby' : ''} ${isCompact ? 'slot-compact' : ''}`}
           >
             <div className="slot-time">{slot.time}</div>
             {showLobbyInfo && hasLobby && (
               <div className="slot-lobby-info" aria-label={`${slot.currentParticipants} из ${slot.minParticipants} человек`}>
                 <span className="slot-lobby-count">
-                  👥 {slot.currentParticipants}/{slot.minParticipants} человек
+                  👥 {slot.currentParticipants}/{slot.minParticipants}
                 </span>
+                {showLobbyHint && (
+                  <span className="slot-lobby-hint-inline">
+                    Набрали минимум — слот откроется
+                  </span>
+                )}
               </div>
             )}
-            {userInLobby && (
+            {userInLobby && !isCompact && (
               <div className="slot-lobby-badge">
                 <Chip>Вы в лобби</Chip>
               </div>
             )}
-            <div className="slot-note">{noteText}</div>
-            <div className="slot-actions">
-              {showSecondary ? (
-                <SecondaryButton
-                  type="button"
-                  onClick={() => handleLeave(slot.id)}
-                  disabled={isLoading}
-                  aria-label="Выйти из лобби"
-                >
-                  {secondaryLabel}
-                </SecondaryButton>
-              ) : (
-                <PrimaryButton
-                  type="button"
-                  onClick={() => {
-                    if (isActivated) {
-                      onSelectSlot(slot.id)
-                    } else if (hasLobby && onJoinLobby && !userInLobby && !lobbyDeadlinePassed) {
-                      handleJoin(slot.id)
-                    } else if (isSelectable) {
-                      onSelectSlot(slot.id)
-                    }
-                  }}
-                  disabled={
-                    cardDisabled ||
-                    isLoading ||
-                    (!isActivated && !(hasLobby && !userInLobby && !lobbyDeadlinePassed) && !isSelectable)
-                  }
-                  aria-pressed={selectedSlot === slot.id}
-                  aria-label={primaryLabel}
-                >
-                  {primaryLabel}
-                </PrimaryButton>
-              )}
-            </div>
+            {isCompact ? (
+              <div className="slot-note slot-note-compact">{noteText}</div>
+            ) : (
+              <>
+                <div className="slot-note">{noteText}</div>
+                <div className="slot-actions">
+                  {showSecondary ? (
+                    <SecondaryButton
+                      type="button"
+                      onClick={() => handleLeave(slot.id)}
+                      disabled={isLoading}
+                      aria-label="Выйти из лобби"
+                    >
+                      {secondaryLabel}
+                    </SecondaryButton>
+                  ) : (
+                    <PrimaryButton
+                      type="button"
+                      onClick={() => {
+                        if (isActivated) {
+                          onSelectSlot(slot.id)
+                        } else if (hasLobby && onJoinLobby && !userInLobby && !lobbyDeadlinePassed) {
+                          handleJoin(slot.id)
+                        } else if (isSelectable) {
+                          onSelectSlot(slot.id)
+                        }
+                      }}
+                      disabled={
+                        cardDisabled ||
+                        isLoading ||
+                        (!isActivated && !(hasLobby && !userInLobby && !lobbyDeadlinePassed) && !isSelectable)
+                      }
+                      aria-pressed={selectedSlot === slot.id}
+                      aria-label={primaryLabel}
+                    >
+                      {primaryLabel}
+                    </PrimaryButton>
+                  )}
+                </div>
+              </>
+            )}
           </Card>
         )
       })}

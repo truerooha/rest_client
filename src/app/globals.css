@@ -511,12 +511,11 @@ a {
   font-weight: 500;
 }
 
-.slot-lobby-hint {
-  font-size: 13px;
+.slot-lobby-hint-inline {
+  font-size: 12px;
   color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0 0 12px;
-  padding: 0;
+  display: block;
+  margin-top: 2px;
 }
 
 .slot-lobby-badge {
@@ -525,6 +524,34 @@ a {
 
 .slot-actions {
   margin-top: 4px;
+}
+
+/* Компактный вид для отменённых/недоступных слотов */
+.slot-compact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  min-height: unset;
+}
+
+.slot-compact .slot-time {
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.slot-compact .slot-note-compact {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  flex: 1;
+}
+
+.slot-compact .slot-lobby-info,
+.slot-compact .slot-lobby-badge {
+  display: none;
 }
 
 .slot-activated-banner {
