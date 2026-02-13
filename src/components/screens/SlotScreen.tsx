@@ -105,6 +105,11 @@ export function SlotScreen({
             : undefined
         }
       >
+        {deliverySlots.some((s) => s.minParticipants != null && s.currentParticipants != null) && (
+          <p className="slot-lobby-hint" role="status">
+            Присоединяйтесь к слоту — когда наберётся минимум участников, слот откроется для заказа и доставка будет бесплатной.
+          </p>
+        )}
         {deliverySlots.length === 0 ? (
           <EmptyState
             emoji="📅"

@@ -15,11 +15,6 @@ type SlotSelectorProps = {
   onLeaveLobby?: (slotId: string) => Promise<void>
 }
 
-function formatDeliveryPrice(cents: number): string {
-  if (cents === 0) return 'доставка бесплатно'
-  return `доставка ${Math.round(cents / 100)} ₽`
-}
-
 export function SlotSelector({
   slots,
   selectedSlot,
@@ -129,9 +124,6 @@ export function SlotSelector({
               <div className="slot-lobby-info" aria-label={`${slot.currentParticipants} из ${slot.minParticipants} человек`}>
                 <span className="slot-lobby-count">
                   👥 {slot.currentParticipants}/{slot.minParticipants} человек
-                </span>
-                <span className="slot-delivery-price">
-                  {formatDeliveryPrice(slot.deliveryPriceCents ?? 0)}
                 </span>
               </div>
             )}

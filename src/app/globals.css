@@ -503,9 +503,6 @@ a {
 }
 
 .slot-lobby-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   font-size: 13px;
   color: var(--text-secondary);
 }
@@ -514,8 +511,12 @@ a {
   font-weight: 500;
 }
 
-.slot-delivery-price {
-  color: var(--primary);
+.slot-lobby-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0 0 12px;
+  padding: 0;
 }
 
 .slot-lobby-badge {
