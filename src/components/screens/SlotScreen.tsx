@@ -97,14 +97,7 @@ export function SlotScreen({
         </Section>
       )}
 
-      <Section
-        title="Слот доставки"
-        subtitle={
-          deliverySlots.length > 0
-            ? `Доступно слотов: ${availableCount}`
-            : undefined
-        }
-      >
+      <Section title="Слот доставки">
         {deliverySlots.length === 0 ? (
           <EmptyState
             emoji="📅"

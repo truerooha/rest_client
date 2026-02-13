@@ -133,7 +133,7 @@ export function SlotSelector({
                 </span>
                 {showLobbyHint && (
                   <span className="slot-lobby-hint-inline">
-                    Набрали минимум — слот откроется
+                    Как только наберём минимум — слот откроется
                   </span>
                 )}
               </div>
