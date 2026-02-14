@@ -116,14 +116,24 @@ export function MenuGrid({
                     {item.imageUrl ? (
                       <img
                         src={item.imageUrl}
-                        alt=""
+                        alt={item.name}
                         className="product-image-img"
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.currentTarget
+                          target.style.display = 'none'
+                          const fallback = target.nextElementSibling
+                          if (fallback) (fallback as HTMLElement).style.display = ''
+                        }}
                       />
-                    ) : (
-                      <span className="product-image" aria-hidden>
-                        {item.emoji}
-                      </span>
-                    )}
+                    ) : null}
+                    <span
+                      className="product-image"
+                      aria-hidden
+                      style={item.imageUrl ? { display: 'none' } : undefined}
+                    >
+                      {item.emoji}
+                    </span>
                     <div
                       className={`product-card-action ${getCartQty(item.id) > 0 ? 'product-card-action--expanded' : ''}`}
                     >
