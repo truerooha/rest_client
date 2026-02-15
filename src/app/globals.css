@@ -919,7 +919,7 @@ a {
   position: absolute;
   top: 6px;
   left: 50%;
-  width: 100%;
+  width: calc(100% + 8px);
   height: 2px;
   z-index: 0;
 }
