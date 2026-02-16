@@ -83,6 +83,12 @@ export function SlotSelector({
                 ? 'Ваш заказ'
                 : `Принять заказ до ${slot.deadline}`
               : `Принять заказ до ${slot.deadline}`
+            if (deadlinePassed && !hasUserOrder) {
+              // Активированный слот после дедлайна без заказа пользователя
+              // должен быть недоступен для выбора.
+              cardDisabled = true
+              noteText = 'Приём заказов завершён'
+            }
             showLobbyInfo = true
           } else if (userInLobby) {
             showSecondary = true
@@ -163,7 +169,11 @@ export function SlotSelector({
                       type="button"
                       onClick={() => {
                         if (isActivated) {
-                          onSelectSlot(slot.id)
+                          // Для активированного слота разрешаем выбор только если
+                          // он доступен для нового заказа или у пользователя уже есть заказ.
+                          if (isSelectable) {
+                            onSelectSlot(slot.id)
+                          }
                         } else if (hasLobby && onJoinLobby && !userInLobby && !lobbyDeadlinePassed) {
                           handleJoin(slot.id)
                         } else if (isSelectable) {
