@@ -85,6 +85,11 @@ a {
   z-index: 10;
 }
 
+.page-header-minimal {
+  padding-bottom: 0;
+  box-shadow: none;
+}
+
 .page-content {
   flex: 1;
   min-height: 0;
@@ -104,6 +109,17 @@ a {
   padding: 8px 12px calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 8px);
   background: var(--surface);
   border-top: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+.bottom-nav-indicator {
+  position: absolute;
+  top: 6px;
+  height: 48px;
+  background: var(--mint);
+  border-radius: var(--radius-md);
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
 .bottom-nav-item {
@@ -119,7 +135,9 @@ a {
   cursor: pointer;
   border-radius: var(--radius-md);
   color: var(--text-muted);
-  transition: color 0.15s ease-out, background 0.15s ease-out;
+  transition: color 0.2s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 .bottom-nav-item:disabled {
@@ -129,7 +147,11 @@ a {
 
 .bottom-nav-item-active {
   color: var(--primary);
-  background: var(--mint);
+}
+
+.bottom-nav-item-active .bottom-nav-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bottom-nav-item-visited {
@@ -137,8 +159,11 @@ a {
 }
 
 .bottom-nav-icon {
-  font-size: 18px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
 }
 
 .bottom-nav-label {
@@ -148,7 +173,9 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bottom-nav-item {
+  .bottom-nav-item,
+  .bottom-nav-indicator,
+  .bottom-nav-icon {
     transition: none;
   }
 }

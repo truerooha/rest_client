@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, SVGProps } from 'react'
 
 type CommonProps = {
   className?: string
@@ -151,10 +151,56 @@ export function StepTabs({
   )
 }
 
+const iconProps: SVGProps<SVGSVGElement> = {
+  width: 22,
+  height: 22,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+}
+
+export const NavIcons = {
+  home: (
+    <svg {...iconProps}>
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z" />
+      <path d="M9 21V14h6v7" />
+    </svg>
+  ),
+  menu: (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9 9v6M12 8v8M15 10v4" />
+    </svg>
+  ),
+  cart: (
+    <svg {...iconProps}>
+      <path d="M6 6h15l-1.5 9H7.5z" />
+      <circle cx="9" cy="20" r="1" />
+      <circle cx="18" cy="20" r="1" />
+      <path d="M1 1h4l1 5" />
+    </svg>
+  ),
+  pin: (
+    <svg {...iconProps}>
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+      <circle cx="12" cy="9" r="2.5" />
+    </svg>
+  ),
+  history: (
+    <svg {...iconProps}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 7h8M8 11h8M8 15h5" />
+    </svg>
+  ),
+} as const
+
 type BottomNavItem = {
   id: string
   label: string
-  icon: string
+  icon: ReactNode
   disabled?: boolean
   visited?: boolean
 }
@@ -168,8 +214,23 @@ export function BottomNav({
   activeId: string
   onSelect: (id: string) => void
 }) {
+  const activeIndex = items.findIndex((item) => item.id === activeId)
+  const count = items.length || 1
+  // Padding 12px each side, gap 4px between items
+  // Each cell = (100% - 24px - (count-1)*4px) / count
+  // Offset = index * (cellWidth + 4px) + 12px
+  const cellPercent = `(100% - 24px - ${(count - 1) * 4}px) / ${count}`
+  const leftCalc = `calc(12px + ${activeIndex} * (${cellPercent} + 4px))`
+  const widthCalc = `calc(${cellPercent})`
   return (
     <nav className="bottom-nav" aria-label="Навигация">
+      <div
+        className="bottom-nav-indicator"
+        style={{
+          left: leftCalc,
+          width: widthCalc,
+        }}
+      />
       {items.map((item) => (
         <button
           key={item.id}

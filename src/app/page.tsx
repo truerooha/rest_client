@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { AppBar, ContextCard, BottomNav, SecondaryButton, ConfirmDialog, LoadingScreen } from '../components/ui'
+import { NavIcons } from '../components/ui/Core'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
@@ -558,16 +559,16 @@ export default function HomePage() {
 
   return (
     <>
-      {activeScreen !== 'slot' && (
-        <header className="page-header" role="banner">
+      <header className={`page-header${activeScreen === 'slot' ? ' page-header-minimal' : ''}`} role="banner">
+        {activeScreen !== 'slot' && (
           <AppBar title={
             activeScreen === 'menu' ? `Меню${selectedRestaurant ? ' — ' + selectedRestaurant.name : ''}` :
             activeScreen === 'order' ? 'Ваш заказ' :
             activeScreen === 'tracking' ? 'Статус заказа' :
             activeScreen === 'history' ? 'История' : ''
           } />
-        </header>
-      )}
+        )}
+      </header>
 
       <div className="page-content">
         {(activeScreen === 'menu' || activeScreen === 'order') && (
@@ -774,7 +775,7 @@ export default function HomePage() {
       <BottomNav
         items={stepTabsWithVisited.map((tab) => ({
           ...tab,
-          icon: { slot: '🏠', menu: '🍽', order: '🛒', tracking: '📍', history: '📋' }[tab.id] ?? '',
+          icon: { slot: NavIcons.home, menu: NavIcons.menu, order: NavIcons.cart, tracking: NavIcons.pin, history: NavIcons.history }[tab.id] ?? null,
         }))}
         activeId={activeStepId}
         onSelect={(id) => setActiveScreen(id as Screen)}
