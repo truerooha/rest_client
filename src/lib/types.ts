@@ -30,6 +30,7 @@ export type Restaurant = {
   priceLevel: string
   coverEmoji: string
   buildingIds: number[]
+  sbpLink?: string
 }
 
 export type MenuItem = {

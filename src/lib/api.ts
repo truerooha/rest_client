@@ -17,6 +17,7 @@ type ApiRestaurant = {
   id: number
   name: string
   chat_id?: number
+  sbp_link?: string
 }
 
 type ApiMenuItem = {
@@ -98,6 +99,7 @@ export async function fetchRestaurants(
     priceLevel: '₽₽',
     coverEmoji: '🍽️',
     buildingIds: [buildingId],
+    sbpLink: restaurant.sbp_link ?? undefined,
   }))
 }
 

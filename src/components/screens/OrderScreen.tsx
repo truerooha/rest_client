@@ -20,6 +20,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
     apiUser,
     selectedSlot,
     deliverySlots,
+    restaurants,
     selectedRestaurantId,
     selectedBuildingId,
     cart,
@@ -140,6 +141,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
             onConfirm={handleConfirmOrder}
             onCancel={handleCancelCheckout}
             isProcessing={isProcessing}
+            sbpLink={restaurants.find(r => r.id === selectedRestaurantId)?.sbpLink}
           />
         ) : (
           <CartSummary
