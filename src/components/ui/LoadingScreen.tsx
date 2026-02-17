@@ -12,7 +12,7 @@ export function LoadingScreen() {
         </div>
 
         <div className="splash-copy">
-          <div className="splash-title">Обед в Офис</div>
+          <div className="splash-title">Кускус delivery</div>
           <div className="splash-subtitle">Подгружаем данные, скоро всё будет готово</div>
         </div>
 

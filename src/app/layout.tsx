@@ -4,7 +4,7 @@ import './globals.css'
 import { AppProvider } from '../store/AppContext'
 
 export const metadata = {
-  title: 'Обед в Офис — Mini App',
+  title: 'Кускус delivery — Mini App',
   description: 'Предзаказ офисных обедов в Telegram Mini App',
 }
 
