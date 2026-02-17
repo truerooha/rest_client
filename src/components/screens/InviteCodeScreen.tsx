@@ -1,15 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 type Props = {
   onJoin: (code: string) => Promise<void>
+  /** Код из URL (start_param), если Mini App открыт по ссылке t.me/bot/app?startapp=XXX */
+  initialCode?: string | null
 }
 
-export function InviteCodeScreen({ onJoin }: Props) {
-  const [code, setCode] = useState('')
+const normalizeCode = (s: string): string =>
+  s.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)
+
+export function InviteCodeScreen({ onJoin, initialCode }: Props) {
+  const [code, setCode] = useState(() => (initialCode ? normalizeCode(initialCode) : ''))
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const autoSubmitDone = useRef(false)
+
+  useEffect(() => {
+    const normalized = initialCode ? normalizeCode(initialCode) : ''
+    if (normalized.length === 6 && !autoSubmitDone.current) {
+      autoSubmitDone.current = true
+      setCode(normalized)
+      setLoading(true)
+      setError(null)
+      onJoin(normalized).catch((err) => {
+        const msg = err instanceof Error ? err.message : 'Ошибка'
+        setError(
+          msg === 'invalid_invite_code'
+            ? 'Неверный invite-код. Проверьте и попробуйте снова.'
+            : 'Не удалось подключиться. Попробуйте позже.'
+        )
+      }).finally(() => setLoading(false))
+    }
+  }, [initialCode, onJoin])
 
   const handleSubmit = async () => {
     const trimmed = code.trim().toUpperCase()

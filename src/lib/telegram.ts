@@ -16,6 +16,8 @@ declare global {
           }
           auth_date?: number
           hash?: string
+          /** Параметр из ссылки t.me/bot/app?startapp=XXX — передаётся при открытии Mini App по ссылке */
+          start_param?: string
         }
         ready?: () => void
         expand?: () => void
@@ -58,6 +60,16 @@ export function readTelegramAuth(): TgAuth | null {
     authDate: unsafe.auth_date,
     hash: unsafe.hash,
   }
+}
+
+/**
+ * Читает start_param из URL, если Mini App открыт по ссылке t.me/bot/app?startapp=XXX.
+ * Используется для передачи invite-кода в ссылке — пользователь не вводит код вручную.
+ */
+export function getStartParam(): string | null {
+  if (typeof window === 'undefined') return null
+  const param = window.Telegram?.WebApp?.initDataUnsafe?.start_param
+  return typeof param === 'string' && param.length > 0 ? param : null
 }
 
 export function createLocalAuth(user: TgUser): TgAuth {

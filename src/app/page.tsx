@@ -12,6 +12,7 @@ import {
   initTelegramWebApp,
   readTelegramAuth,
   createLocalAuth,
+  getStartParam,
 } from '../lib/telegram'
 import {
   fetchBuildings,
@@ -541,6 +542,7 @@ export default function HomePage() {
   if (auth && apiState === 'success' && !isApproved) {
     return (
       <InviteCodeScreen
+        initialCode={getStartParam()}
         onJoin={async (code) => {
           const user = await joinWithInviteCode(apiUrl, auth.user.id, code)
           if (user.is_approved) {
