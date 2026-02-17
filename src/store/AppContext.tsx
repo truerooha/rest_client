@@ -93,6 +93,10 @@ type AppState = {
   appTimezone: string
   setAppTimezone: (tz: string) => void
 
+  // User approval (invite code)
+  isApproved: boolean
+  setIsApproved: (approved: boolean) => void
+
   // Слоты, где у пользователя есть заказ (для выбора на главной)
   userOrderSlotIds: string[]
   setUserOrderSlotIds: React.Dispatch<React.SetStateAction<string[]>>
@@ -135,6 +139,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [apiState, setApiState] = useState<ApiState>('idle')
   const [apiError, setApiError] = useState<string | null>(null)
   const [appTimezone, setAppTimezone] = useState<string>(DEFAULT_APP_TIMEZONE)
+  const [isApproved, setIsApproved] = useState<boolean>(false)
   const [userOrderSlotIds, setUserOrderSlotIds] = useState<string[]>([])
   
   const addToCart = useCallback((item: MenuItem) => {
@@ -180,6 +185,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           building_id: selectedBuildingId ?? undefined,
         })
         setApiUser({ id: user.id })
+        setIsApproved(!!user.is_approved)
         const draft = await getDraft(apiUrl, auth.user.id)
         const buildingId = draft?.building_id ?? selectedBuildingId
         const restaurantId = draft?.restaurant_id ?? selectedRestaurantId
@@ -341,6 +347,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     apiError,
     appTimezone,
     setAppTimezone,
+    isApproved,
+    setIsApproved,
     userOrderSlotIds,
     setUserOrderSlotIds,
     loadData,

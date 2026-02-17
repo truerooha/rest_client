@@ -25,7 +25,9 @@ import {
   fetchUserOrderSlots,
   joinLobby,
   leaveLobby,
+  joinWithInviteCode,
 } from '../lib/api'
+import { InviteCodeScreen } from '../components/screens/InviteCodeScreen'
 import { isDeadlinePassed } from '../lib/order-utils'
 import type { TgUser } from '../lib/types'
 import { testUserInputSchema, apiUrlSchema } from '../lib/validators'
@@ -93,6 +95,8 @@ export default function HomePage() {
     appTimezone,
     userOrderSlotIds,
     setUserOrderSlotIds,
+    isApproved,
+    setIsApproved,
   } = useApp()
   
   useEffect(() => {
@@ -531,6 +535,23 @@ export default function HomePage() {
   // но при этом эффекты (инициализация Telegram, загрузка API) продолжают работать.
   if (showSplash) {
     return <LoadingScreen />
+  }
+
+  // Gate: require invite code for unapproved users
+  if (auth && apiState === 'success' && !isApproved) {
+    return (
+      <InviteCodeScreen
+        onJoin={async (code) => {
+          const user = await joinWithInviteCode(apiUrl, auth.user.id, code)
+          if (user.is_approved) {
+            setIsApproved(true)
+            // Reload data after approval
+            await handleApiLoad()
+            await loadData(apiUrl)
+          }
+        }}
+      />
+    )
   }
 
   return (

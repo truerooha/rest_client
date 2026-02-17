@@ -248,6 +248,7 @@ type ApiUser = {
   telegram_user_id: number
   username?: string | null
   building_id?: number | null
+  is_approved?: number
 }
 
 export async function fetchUserOrCreate(
@@ -453,4 +454,24 @@ export async function fetchActiveOrderForSlot(
     throw new Error(json.error ?? 'active_order_fetch_failed')
   }
   return json.data ?? null
+}
+
+export async function joinWithInviteCode(
+  apiUrl: string,
+  telegramUserId: number,
+  inviteCode: string,
+): Promise<ApiUser> {
+  const res = await fetch(`${apiUrl}/api/auth/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram_user_id: telegramUserId,
+      invite_code: inviteCode.toUpperCase().trim(),
+    }),
+  })
+  const json = (await res.json()) as ApiResponse<ApiUser>
+  if (!res.ok || !json.success || !json.data) {
+    throw new Error(json.error ?? 'join_failed')
+  }
+  return json.data
 }
