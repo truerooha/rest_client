@@ -39,17 +39,17 @@ export function HistoryScreen() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'Ожидает'
+        return '\u23F3 Ожидает'
       case 'confirmed':
-        return 'Подтверждён'
+        return '\u2705 Подтверждён'
       case 'preparing':
-        return 'Готовится'
+        return '\uD83D\uDD25 Готовится'
       case 'ready':
-        return 'Готов'
+        return '\uD83D\uDCE6 Готов'
       case 'delivered':
-        return 'Доставлен'
+        return '\u2714\uFE0F Доставлен'
       case 'cancelled':
-        return 'Отменён'
+        return '\u2716 Отменён'
       default:
         return status
     }

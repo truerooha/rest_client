@@ -78,8 +78,9 @@ export function StatusBanner({ icon, variant = 'default', children }: StatusBann
       : variant === 'error'
         ? 'status-banner status-banner-error'
         : 'status-banner'
+  const bannerRole = variant === 'error' ? 'alert' : 'status'
   return (
-    <div className={variantClass}>
+    <div className={variantClass} role={bannerRole}>
       {icon ? <div className="status-banner-icon">{icon}</div> : null}
       <div>{children}</div>
     </div>

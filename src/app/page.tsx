@@ -536,7 +536,13 @@ export default function HomePage() {
   return (
     <>
       <header className="page-header" role="banner">
-        <AppBar title="" />
+        <AppBar title={
+          activeScreen === 'slot' ? 'Доставка' :
+          activeScreen === 'menu' ? `Меню${selectedRestaurant ? ' — ' + selectedRestaurant.name : ''}` :
+          activeScreen === 'order' ? 'Ваш заказ' :
+          activeScreen === 'tracking' ? 'Статус заказа' :
+          activeScreen === 'history' ? 'История' : ''
+        } />
         {auth ? (
           <div className="tg-user-label" aria-hidden>
             {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}
@@ -550,13 +556,15 @@ export default function HomePage() {
       </header>
 
       <div className="page-content">
-        <ContextCard
-          rows={[
-            { label: 'Офис', value: selectedBuilding?.name ?? '—' },
-            { label: 'Ресторан', value: selectedRestaurant?.name ?? '—' },
-            ...(selectedSlot ? [{ label: 'Слот', value: selectedSlot }] : []),
-          ]}
-        />
+        {activeScreen !== 'tracking' && activeScreen !== 'history' && (
+          <ContextCard
+            rows={[
+              { label: 'Офис', value: selectedBuilding?.name ?? '—' },
+              { label: 'Ресторан', value: selectedRestaurant?.name ?? '—' },
+              ...(selectedSlot ? [{ label: 'Слот', value: selectedSlot }] : []),
+            ]}
+          />
+        )}
 
         {activeScreen === 'slot' && (
           <SlotScreen

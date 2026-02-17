@@ -31,6 +31,7 @@
   --radius-pill: 999px;
 
   --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --shadow-floating: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 * {
@@ -47,7 +48,7 @@ body {
 }
 
 *:focus-visible {
-  outline: 3px solid #2e7d32;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -101,12 +102,6 @@ a {
 
 .app-actions {
   display: flex;
-  gap: 8px;
-}
-
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -261,15 +256,15 @@ a {
 
 .badge {
   background: var(--light-green);
-  color: #1b5e20;
+  color: var(--primary-dark);
   border-radius: var(--radius-pill);
   padding: 2px 8px;
   font-size: 11px;
-  border: 1px solid #a5d6a7;
+  border: 1px solid var(--light-green);
 }
 
 .muted {
-  color: #616161;
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.4;
 }
@@ -411,7 +406,7 @@ a {
 .price {
   color: var(--primary);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .cart-item {
@@ -587,7 +582,7 @@ a {
 }
 
 .order-muted {
-  color: #616161;
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.4;
 }
@@ -1044,10 +1039,11 @@ a {
 .cart-summary-bar {
   position: sticky;
   bottom: 8px;
-  z-index: 2;
+  z-index: 10;
   background: var(--surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-floating);
+  border-top: 2px solid var(--primary);
   padding: 16px;
   min-height: 72px;
   display: grid;

@@ -51,6 +51,7 @@ export function SearchBar({ value, onChange, placeholder = 'Поиск...', onCl
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="search-input"
+        aria-label={placeholder}
       />
       {value && onClear ? (
         <button type="button" onClick={onClear} className="search-clear">
