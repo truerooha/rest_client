@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { AppBar, ContextCard, StepTabs, SecondaryButton, ConfirmDialog, LoadingScreen } from '../components/ui'
+import { AppBar, ContextCard, BottomNav, SecondaryButton, ConfirmDialog, LoadingScreen } from '../components/ui'
 import { SlotScreen } from '../components/screens/SlotScreen'
 import { MenuScreen } from '../components/screens/MenuScreen'
 import { OrderScreen } from '../components/screens/OrderScreen'
@@ -558,28 +558,19 @@ export default function HomePage() {
 
   return (
     <>
-      <header className="page-header" role="banner">
-        <AppBar title={
-          activeScreen === 'slot' ? 'Доставка' :
-          activeScreen === 'menu' ? `Меню${selectedRestaurant ? ' — ' + selectedRestaurant.name : ''}` :
-          activeScreen === 'order' ? 'Ваш заказ' :
-          activeScreen === 'tracking' ? 'Статус заказа' :
-          activeScreen === 'history' ? 'История' : ''
-        } />
-        {auth ? (
-          <div className="tg-user-label" aria-hidden>
-            {auth.user.username ? `@${auth.user.username}` : `${auth.user.firstName}${auth.user.lastName ? ' ' + auth.user.lastName : ''}`}
-          </div>
-        ) : null}
-        <StepTabs
-          items={stepTabsWithVisited}
-          activeId={activeStepId}
-          onSelect={(id) => setActiveScreen(id as Screen)}
-        />
-      </header>
+      {activeScreen !== 'slot' && (
+        <header className="page-header" role="banner">
+          <AppBar title={
+            activeScreen === 'menu' ? `Меню${selectedRestaurant ? ' — ' + selectedRestaurant.name : ''}` :
+            activeScreen === 'order' ? 'Ваш заказ' :
+            activeScreen === 'tracking' ? 'Статус заказа' :
+            activeScreen === 'history' ? 'История' : ''
+          } />
+        </header>
+      )}
 
       <div className="page-content">
-        {activeScreen !== 'tracking' && activeScreen !== 'history' && (
+        {(activeScreen === 'menu' || activeScreen === 'order') && (
           <ContextCard
             rows={[
               { label: 'Офис', value: selectedBuilding?.name ?? '—' },
@@ -779,6 +770,15 @@ export default function HomePage() {
         </SecondaryButton>
       ) : null}
       </div>
+
+      <BottomNav
+        items={stepTabsWithVisited.map((tab) => ({
+          ...tab,
+          icon: { slot: '🏠', menu: '🍽', order: '🛒', tracking: '📍', history: '📋' }[tab.id] ?? '',
+        }))}
+        activeId={activeStepId}
+        onSelect={(id) => setActiveScreen(id as Screen)}
+      />
     </>
   )
 }

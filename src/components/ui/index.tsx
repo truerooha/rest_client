@@ -1,4 +1,4 @@
-export { AppBar, Section, Card, Badge, Chip, Stepper, StatusBanner, ContextCard, StepTabs, ConfirmDialog } from './Core'
+export { AppBar, Section, Card, Badge, Chip, Stepper, StatusBanner, ContextCard, StepTabs, BottomNav, ConfirmDialog } from './Core'
 export { PrimaryButton, SecondaryButton, IconButton } from './Button'
 export { InputField, SearchBar } from './Input'
 export { LoadingSpinner } from './LoadingSpinner'

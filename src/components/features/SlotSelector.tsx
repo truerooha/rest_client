@@ -63,6 +63,9 @@ export function SlotSelector({
         const isActivated = slot.isActivated ?? false
         const userInLobby = slot.userInLobby ?? false
 
+        // Hide cancelled lobby slots entirely
+        if (hasLobby && lobbyDeadlinePassed && !isActivated) return null
+
         let isSelectable = false
         let primaryLabel = 'Выбрать'
         let showSecondary = false
@@ -77,7 +80,7 @@ export function SlotSelector({
             noteText = 'Слот отменён'
           } else if (isActivated) {
             isSelectable = !deadlinePassed || hasUserOrder
-            primaryLabel = 'Выбрать меню'
+            primaryLabel = 'Перейти к меню'
             noteText = hasUserOrder
               ? deadlinePassed
                 ? 'Ваш заказ'
@@ -147,6 +150,11 @@ export function SlotSelector({
             {userInLobby && !isCompact && (
               <div className="slot-lobby-badge">
                 <Chip>Вы в лобби</Chip>
+              </div>
+            )}
+            {isActivated && userInLobby && !deadlinePassed && (
+              <div className="slot-activated-inline" style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600 }}>
+                Слот активирован — оформите заказ
               </div>
             )}
             {isCompact ? (

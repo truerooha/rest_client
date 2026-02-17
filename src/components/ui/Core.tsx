@@ -151,6 +151,46 @@ export function StepTabs({
   )
 }
 
+type BottomNavItem = {
+  id: string
+  label: string
+  icon: string
+  disabled?: boolean
+  visited?: boolean
+}
+
+export function BottomNav({
+  items,
+  activeId,
+  onSelect,
+}: {
+  items: BottomNavItem[]
+  activeId: string
+  onSelect: (id: string) => void
+}) {
+  return (
+    <nav className="bottom-nav" aria-label="Навигация">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className={cx(
+            'bottom-nav-item',
+            activeId === item.id && 'bottom-nav-item-active',
+            item.visited && 'bottom-nav-item-visited',
+          )}
+          onClick={() => onSelect(item.id)}
+          disabled={item.disabled}
+          aria-current={activeId === item.id ? 'page' : undefined}
+        >
+          <span className="bottom-nav-icon">{item.icon}</span>
+          <span className="bottom-nav-label">{item.label}</span>
+        </button>
+      ))}
+    </nav>
+  )
+}
+
 type ConfirmDialogProps = {
   title: string
   message: string

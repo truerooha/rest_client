@@ -69,22 +69,88 @@ a {
 
 .page-header {
   flex-shrink: 0;
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 16px;
+  padding-top: calc(
+    var(--tg-content-safe-area-inset-top, 0px) +
+    var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) +
+    12px
+  );
+  padding-right: 16px;
+  padding-bottom: 12px;
+  padding-left: 16px;
   background: var(--mint);
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  z-index: 10;
 }
 
 .page-content {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 16px 32px;
+  padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   -webkit-overflow-scrolling: touch;
+}
+
+.bottom-nav {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 8px 12px calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 8px);
+  background: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 52px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  transition: color 0.15s ease-out, background 0.15s ease-out;
+}
+
+.bottom-nav-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bottom-nav-item-active {
+  color: var(--primary);
+  background: var(--mint);
+}
+
+.bottom-nav-item-visited {
+  color: var(--primary-dark);
+}
+
+.bottom-nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav-item {
+    transition: none;
+  }
 }
 
 .app-bar {
@@ -999,10 +1065,6 @@ a {
 }
 
 /* Step tabs */
-.page-header .step-tabs {
-  margin-top: 10px;
-}
-
 .step-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1283,11 +1345,3 @@ a {
   line-height: 1.4;
 }
 
-.tg-user-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  opacity: 0.75;
-  text-align: center;
-  margin-top: 6px;
-  user-select: none;
-}
