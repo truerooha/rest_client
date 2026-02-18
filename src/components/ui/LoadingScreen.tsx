@@ -16,7 +16,7 @@ export function LoadingScreen() {
             height={154}
           />
 
-          <div className="splash-delivery-chip">delivery</div>
+          <div className="splash-delivery-chip">business</div>
         </div>
 
         <div className="splash-tagline">Вкусные обеды уже в пути</div>
