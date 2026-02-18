@@ -755,45 +755,23 @@ a {
   width: 100%;
   max-width: 430px;
   text-align: center;
-  gap: 32px;
+  gap: 20px;
 }
 
-/* Brand block: icon + logo text + chip */
+/* Brand block: logo + chip */
 .splash-brand-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 4px;
   animation: splash-brand-in 600ms ease-out both;
 }
 
-.splash-brand-mark {
-  filter: drop-shadow(0 4px 12px rgba(21, 138, 82, 0.15));
-}
-
-/* Logo text: Кус · Кус */
-.splash-logo-text {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  user-select: none;
-}
-
-.splash-logo-kus {
-  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
-  font-size: 34px;
-  font-weight: 600;
-  line-height: 40px;
-  color: var(--text-primary);
-  letter-spacing: -0.5px;
-}
-
-.splash-logo-dot {
-  font-size: 34px;
-  font-weight: 600;
-  line-height: 40px;
-  color: var(--orange);
-  margin: 0 2px;
+.splash-logo-img {
+  width: 240px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(21, 138, 82, 0.12));
 }
 
 /* "delivery" chip */
@@ -824,24 +802,6 @@ a {
 /* Spinner */
 .splash-spinner {
   animation: splash-fade-in 400ms 450ms ease-out both;
-}
-
-/* Steam float animation */
-@keyframes splash-steam {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(-3px); opacity: 0.6; }
-}
-
-.splash-brand-mark path {
-  animation: splash-steam 2.4s ease-in-out infinite;
-}
-
-.splash-brand-mark path:nth-child(8) {
-  animation-delay: 0.3s;
-}
-
-.splash-brand-mark path:nth-child(9) {
-  animation-delay: 0.6s;
 }
 
 @keyframes splash-brand-in {
@@ -875,9 +835,6 @@ a {
     animation: none;
   }
   .splash-spinner {
-    animation: none;
-  }
-  .splash-brand-mark path {
     animation: none;
   }
 }
