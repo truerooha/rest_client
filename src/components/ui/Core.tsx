@@ -67,11 +67,12 @@ export function Badge({
 
 type StatusBannerProps = {
   icon?: string
+  iconAccent?: boolean
   variant?: 'default' | 'warning' | 'error'
   children: ReactNode
 }
 
-export function StatusBanner({ icon, variant = 'default', children }: StatusBannerProps) {
+export function StatusBanner({ icon, iconAccent, variant = 'default', children }: StatusBannerProps) {
   const variantClass =
     variant === 'warning'
       ? 'status-banner status-banner-warning'
@@ -81,7 +82,7 @@ export function StatusBanner({ icon, variant = 'default', children }: StatusBann
   const bannerRole = variant === 'error' ? 'alert' : 'status'
   return (
     <div className={variantClass} role={bannerRole}>
-      {icon ? <div className="status-banner-icon">{icon}</div> : null}
+      {icon ? <div className={cx('status-banner-icon', iconAccent && 'status-banner-icon-accent')}>{icon}</div> : null}
       <div>{children}</div>
     </div>
   )
@@ -203,6 +204,7 @@ type BottomNavItem = {
   icon: ReactNode
   disabled?: boolean
   visited?: boolean
+  badge?: number
 }
 
 export function BottomNav({
@@ -244,7 +246,12 @@ export function BottomNav({
           disabled={item.disabled}
           aria-current={activeId === item.id ? 'page' : undefined}
         >
-          <span className="bottom-nav-icon">{item.icon}</span>
+          <span className="bottom-nav-icon">
+            {item.icon}
+            {item.badge != null && item.badge > 0 ? (
+              <span className="bottom-nav-badge">{item.badge}</span>
+            ) : null}
+          </span>
           <span className="bottom-nav-label">{item.label}</span>
         </button>
       ))}

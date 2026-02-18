@@ -164,6 +164,24 @@ a {
   justify-content: center;
   width: 22px;
   height: 22px;
+  position: relative;
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--orange);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
 }
 
 .bottom-nav-label {
@@ -497,7 +515,7 @@ a {
 }
 
 .price {
-  color: var(--primary);
+  color: var(--orange);
   font-weight: 600;
   font-size: 15px;
 }
@@ -1156,6 +1174,10 @@ a {
   font-size: 16px;
 }
 
+.status-banner-icon-accent {
+  color: var(--orange);
+}
+
 /* Context card — усиленный signifier (ревью: офис/ресторан/слот) */
 .context-card {
   display: grid;
@@ -1244,7 +1266,7 @@ a {
 .price-summary-total {
   font-size: 18px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--orange);
 }
 
 .info-hint {

@@ -776,6 +776,7 @@ export default function HomePage() {
         items={stepTabsWithVisited.map((tab) => ({
           ...tab,
           icon: { slot: NavIcons.home, menu: NavIcons.menu, order: NavIcons.cart, tracking: NavIcons.pin, history: NavIcons.history }[tab.id] ?? null,
+          badge: tab.id === 'order' ? cart.length : undefined,
         }))}
         activeId={activeStepId}
         onSelect={(id) => setActiveScreen(id as Screen)}

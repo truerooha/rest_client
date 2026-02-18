@@ -112,7 +112,7 @@ export function OrderScreen({ apiUrl, onOrderCreated }: OrderScreenProps) {
   
   return (
     <Section title="Ваш заказ" subtitle={orderSlotLabel}>
-      <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} variant={isCancelAvailable ? 'default' : 'warning'}>
+      <StatusBanner icon={isCancelAvailable ? '⏳' : '⚠️'} iconAccent={isCancelAvailable} variant={isCancelAvailable ? 'default' : 'warning'}>
         {isCancelAvailable
           ? `Заказ принимается до ${selectedSlotData?.deadline ?? ORDER_CONFIG.cancelDeadline}. Отмена возможна до этого времени`
           : 'Время приёма заказов прошло. Отмена и правки недоступны'}
