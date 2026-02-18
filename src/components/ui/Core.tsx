@@ -172,8 +172,9 @@ export const NavIcons = {
   ),
   menu: (
     <svg {...iconProps}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9 9v6M12 8v8M15 10v4" />
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" />
+      <path d="M7 2v20" />
+      <path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" />
     </svg>
   ),
   cart: (
@@ -186,8 +187,18 @@ export const NavIcons = {
   ),
   pin: (
     <svg {...iconProps}>
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-      <circle cx="12" cy="9" r="2.5" />
+      <path d="M12 22c5.5-5 10-10 10-14a10 10 0 00-20 0c0 4 4.5 9 10 14z" />
+      <circle cx="12" cy="8" r="3" />
+      <path d="M8 21h8" />
+    </svg>
+  ),
+  tracking: (
+    <svg {...iconProps}>
+      <path d="M14 18V6a2 2 0 00-2-2H4a2 2 0 00-2 2v11a1 1 0 001 1h2" />
+      <path d="M15 18H9" />
+      <path d="M19 18h2a1 1 0 001-1v-3.65a1 1 0 00-.22-.624l-3.48-4.35A1 1 0 0017.52 8H14" />
+      <circle cx="17" cy="18" r="2" />
+      <circle cx="7" cy="18" r="2" />
     </svg>
   ),
   history: (

@@ -775,7 +775,7 @@ export default function HomePage() {
       <BottomNav
         items={stepTabsWithVisited.map((tab) => ({
           ...tab,
-          icon: { slot: NavIcons.home, menu: NavIcons.menu, order: NavIcons.cart, tracking: NavIcons.pin, history: NavIcons.history }[tab.id] ?? null,
+          icon: { slot: NavIcons.home, menu: NavIcons.menu, order: NavIcons.cart, tracking: NavIcons.tracking, history: NavIcons.history }[tab.id] ?? null,
           badge: tab.id === 'order' ? cart.length : undefined,
         }))}
         activeId={activeStepId}
