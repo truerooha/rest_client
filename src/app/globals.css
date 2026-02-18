@@ -396,8 +396,22 @@ a {
 }
 
 .product-card {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-card-name {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.product-card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
 
 /* Карточка блюда: место под фото (aspect ratio по design system) */

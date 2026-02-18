@@ -156,9 +156,9 @@ export function MenuGrid({
                       )}
                     </div>
                   </div>
-                  <div style={{ fontWeight: 600, marginTop: 12 }}>{item.name}</div>
+                  <div className="product-card-name">{item.name}</div>
                   {item.description ? (
-                    <div className="muted">{item.description}</div>
+                    <div className="muted product-card-desc">{item.description}</div>
                   ) : null}
                   <div className="row" style={{ justifyContent: 'space-between' }}>
                     <span className="price">{formatPrice(item.price)}</span>
