@@ -22,6 +22,7 @@ import {
   createOrder as createOrderApi,
   cancelOrderApi,
   fetchUserOrderSlots,
+  fetchUserOrders,
 } from "../lib/api"
 import { isDeadlinePassed, calculateOrderTotals } from "../lib/order-utils"
 
@@ -186,6 +187,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
         setApiUser({ id: user.id })
         setIsApproved(!!user.is_approved)
+        // Загружаем историю заказов пользователя
+        const serverOrders = await fetchUserOrders(apiUrl, user.id)
+        if (serverOrders.length > 0) {
+          const mapped: Order[] = serverOrders.map((o) => ({
+            id: String(o.id),
+            userId: o.user_id,
+            restaurantId: o.restaurant_id,
+            buildingId: o.building_id,
+            items: o.items.map((i) => ({
+              item: {
+                id: i.id,
+                name: i.name,
+                price: i.price,
+                description: '',
+                unit: '1 порция',
+                category: 'Другое',
+                emoji: '🍽️',
+                restaurantId: o.restaurant_id,
+              },
+              qty: i.quantity,
+            })),
+            totalPrice: o.total_price,
+            deliverySlot: o.delivery_slot,
+            status: o.status as Order['status'],
+            createdAt: o.created_at,
+          }))
+          setOrderHistory(mapped)
+        }
         const draft = await getDraft(apiUrl, auth.user.id)
         const buildingId = draft?.building_id ?? selectedBuildingId
         const restaurantId = draft?.restaurant_id ?? selectedRestaurantId

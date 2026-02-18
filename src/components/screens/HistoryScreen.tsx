@@ -1,6 +1,6 @@
 'use client'
 
-import { Section, Card, Badge, EmptyState } from '../ui'
+import { Card, Badge, EmptyState } from '../ui'
 import { useApp } from '../../store/AppContext'
 import { formatPrice } from '../../lib/order-utils'
 
@@ -9,13 +9,11 @@ export function HistoryScreen() {
   
   if (orderHistory.length === 0) {
     return (
-      <Section title="История заказов">
-        <EmptyState
-          emoji="📋"
-          title="Пока нет заказов"
-          description="Ваши заказы будут отображаться здесь"
-        />
-      </Section>
+      <EmptyState
+        emoji="📋"
+        title="Пока нет заказов"
+        description="Ваши заказы будут отображаться здесь"
+      />
     )
   }
   
@@ -56,9 +54,8 @@ export function HistoryScreen() {
   }
   
   return (
-    <Section title="История заказов">
-      <div style={{ display: 'grid', gap: 12 }}>
-        {orderHistory.map((order) => (
+    <div style={{ display: 'grid', gap: 12, padding: '0 16px' }}>
+      {orderHistory.map((order) => (
           <Card key={order.id}>
             <div
               className="row"
@@ -103,7 +100,6 @@ export function HistoryScreen() {
             </div>
           </Card>
         ))}
-      </div>
-    </Section>
+    </div>
   )
 }

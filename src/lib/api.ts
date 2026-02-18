@@ -203,6 +203,30 @@ export async function leaveLobby(
   }
 }
 
+type ApiOrder = {
+  id: number
+  user_id: number
+  restaurant_id: number
+  building_id: number
+  items: Array<{ id: number; name: string; price: number; quantity: number }>
+  total_price: number
+  delivery_slot: string
+  status: string
+  created_at: string
+}
+
+export async function fetchUserOrders(
+  apiUrl: string,
+  userId: number,
+): Promise<ApiOrder[]> {
+  const res = await fetch(`${apiUrl}/api/orders/${userId}`)
+  const json = (await res.json()) as ApiResponse<ApiOrder[]>
+  if (!res.ok || !json.success || !json.data) {
+    return []
+  }
+  return json.data
+}
+
 type CreateOrderPayload = {
   userId: number
   restaurantId: number
