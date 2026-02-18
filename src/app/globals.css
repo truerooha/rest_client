@@ -350,14 +350,17 @@ a {
 }
 
 .chip {
-  background: var(--warm);
-  color: var(--text-secondary);
+  background: var(--light-green);
+  color: var(--primary);
   border-radius: var(--radius-pill);
-  padding: 10px 12px;
-  font-size: 12px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
   border: none;
   cursor: pointer;
-  min-height: 44px;
+  white-space: nowrap;
+  transition: background 0.15s ease-out, color 0.15s ease-out;
 }
 
 .chip-active {
@@ -1016,7 +1019,12 @@ a {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 16px 4px;
+}
+.category-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .menu-grid-container {
