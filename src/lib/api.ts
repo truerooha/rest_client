@@ -1,6 +1,22 @@
 import { Building, DeliverySlot, MenuItem, Restaurant } from './types'
 import { z } from 'zod'
 
+/** Обёртка над fetch, добавляющая X-Telegram-Init-Data для авторизации на сервере */
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const initHeaders: Record<string, string> = {}
+  if (typeof window !== 'undefined') {
+    const initData = window.Telegram?.WebApp?.initData
+    if (initData) {
+      initHeaders['X-Telegram-Init-Data'] = initData
+    }
+  }
+  const existingHeaders = (options?.headers ?? {}) as Record<string, string>
+  return globalThis.fetch(url, {
+    ...options,
+    headers: { ...existingHeaders, ...initHeaders },
+  })
+}
+
 type ApiResponse<T> = {
   success: boolean
   data?: T
@@ -50,7 +66,7 @@ const configSchema = z.object({
 export type AppConfig = z.infer<typeof configSchema>
 
 export async function fetchConfig(apiUrl: string): Promise<AppConfig> {
-  const res = await fetch(`${apiUrl}/api/config`)
+  const res = await apiFetch(`${apiUrl}/api/config`)
   const json = (await res.json()) as ApiResponse<unknown>
   if (!res.ok || !json.success || !json.data) {
     return { timezone: 'Europe/Moscow' }
@@ -69,7 +85,7 @@ const categoryEmoji: Record<string, string> = {
 }
 
 export async function fetchBuildings(apiUrl: string): Promise<Building[]> {
-  const res = await fetch(`${apiUrl}/api/buildings`)
+  const res = await apiFetch(`${apiUrl}/api/buildings`)
   const json = (await res.json()) as ApiResponse<ApiBuilding[]>
   if (!res.ok || !json.success || !json.data) {
     throw new Error('buildings_fetch_failed')
@@ -85,7 +101,7 @@ export async function fetchRestaurants(
   apiUrl: string,
   buildingId: number,
 ): Promise<Restaurant[]> {
-  const res = await fetch(`${apiUrl}/api/restaurants?buildingId=${buildingId}`)
+  const res = await apiFetch(`${apiUrl}/api/restaurants?buildingId=${buildingId}`)
   const json = (await res.json()) as ApiResponse<ApiRestaurant[]>
   if (!res.ok || !json.success || !json.data) {
     throw new Error('restaurants_fetch_failed')
@@ -107,7 +123,7 @@ export async function fetchMenu(
   apiUrl: string,
   restaurantId: number,
 ): Promise<MenuItem[]> {
-  const res = await fetch(`${apiUrl}/api/menu/${restaurantId}`)
+  const res = await apiFetch(`${apiUrl}/api/menu/${restaurantId}`)
   const json = (await res.json()) as ApiResponse<{ items: ApiMenuItem[] }>
   if (!res.ok || !json.success || !json.data) {
     throw new Error('menu_fetch_failed')
@@ -144,7 +160,7 @@ export async function fetchDeliverySlots(
     params.set('telegram_user_id', String(options.telegramUserId))
   const query = params.toString()
   const url = query ? `${apiUrl}/api/delivery-slots?${query}` : `${apiUrl}/api/delivery-slots`
-  const res = await fetch(url)
+  const res = await apiFetch(url)
   const json = (await res.json()) as ApiResponse<unknown>
   if (!res.ok || !json.success || !json.data) {
     throw new Error('delivery_slots_fetch_failed')
@@ -164,7 +180,7 @@ export async function joinLobby(
   restaurantId: number,
   deliverySlot: string,
 ): Promise<void> {
-  const res = await fetch(`${apiUrl}/api/lobby/join`, {
+  const res = await apiFetch(`${apiUrl}/api/lobby/join`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -187,7 +203,7 @@ export async function leaveLobby(
   restaurantId: number,
   deliverySlot: string,
 ): Promise<void> {
-  const res = await fetch(`${apiUrl}/api/lobby/leave`, {
+  const res = await apiFetch(`${apiUrl}/api/lobby/leave`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -219,7 +235,7 @@ export async function fetchUserOrders(
   apiUrl: string,
   userId: number,
 ): Promise<ApiOrder[]> {
-  const res = await fetch(`${apiUrl}/api/orders/${userId}`)
+  const res = await apiFetch(`${apiUrl}/api/orders/${userId}`)
   const json = (await res.json()) as ApiResponse<ApiOrder[]>
   if (!res.ok || !json.success || !json.data) {
     return []
@@ -251,7 +267,7 @@ export async function createOrder(
   apiUrl: string,
   payload: CreateOrderPayload,
 ): Promise<CreateOrderResponse> {
-  const res = await fetch(`${apiUrl}/api/orders`, {
+  const res = await apiFetch(`${apiUrl}/api/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -280,7 +296,7 @@ export async function fetchUserOrCreate(
   telegramUserId: number,
   data: { username?: string; first_name?: string; last_name?: string; building_id?: number },
 ): Promise<ApiUser> {
-  const res = await fetch(`${apiUrl}/api/user`, {
+  const res = await apiFetch(`${apiUrl}/api/user`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -307,7 +323,7 @@ export async function getDraft(
   building_id: number | null
   items: Array<{ id: number; name: string; price: number; quantity?: number }>
 } | null> {
-  const res = await fetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`)
+  const res = await apiFetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`)
   const json = (await res.json()) as ApiResponse<{
     delivery_slot: string | null
     restaurant_id: number | null
@@ -330,7 +346,7 @@ export async function putDraft(
     items: Array<{ id: number; name: string; price: number; quantity: number }>
   },
 ): Promise<void> {
-  const res = await fetch(`${apiUrl}/api/draft`, {
+  const res = await apiFetch(`${apiUrl}/api/draft`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -348,7 +364,7 @@ export async function putDraft(
 }
 
 export async function deleteDraft(apiUrl: string, telegramUserId: number): Promise<void> {
-  const res = await fetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`, {
+  const res = await apiFetch(`${apiUrl}/api/draft?telegram_user_id=${telegramUserId}`, {
     method: 'DELETE',
   })
   const json = (await res.json()) as ApiResponse<unknown>
@@ -362,7 +378,7 @@ export async function payOrder(
   orderId: number,
   telegramUserId: number,
 ): Promise<{ id: number; status: string }> {
-  const res = await fetch(`${apiUrl}/api/orders/${orderId}/pay`, {
+  const res = await apiFetch(`${apiUrl}/api/orders/${orderId}/pay`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ telegram_user_id: telegramUserId }),
@@ -379,7 +395,7 @@ export async function cancelOrderApi(
   orderId: number,
   telegramUserId: number,
 ): Promise<void> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${apiUrl}/api/orders/${orderId}?telegram_user_id=${telegramUserId}`,
     { method: 'DELETE' },
   )
@@ -411,7 +427,7 @@ export async function fetchGroupOrder(
   buildingId: number,
   restaurantId: number,
 ): Promise<GroupOrderResponse> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${apiUrl}/api/group-orders?deliverySlot=${encodeURIComponent(deliverySlot)}&buildingId=${buildingId}&restaurantId=${restaurantId}`,
   )
   const json = (await res.json()) as ApiResponse<GroupOrderResponse>
@@ -448,7 +464,7 @@ export async function fetchUserOrderSlots(
     buildingId: String(buildingId),
     restaurantId: String(restaurantId),
   })
-  const res = await fetch(
+  const res = await apiFetch(
     `${apiUrl}/api/users/by-telegram/${telegramUserId}/order-slots?${params.toString()}`,
   )
   const json = (await res.json()) as ApiResponse<string[]>
@@ -470,7 +486,7 @@ export async function fetchActiveOrderForSlot(
     buildingId: String(buildingId),
     restaurantId: String(restaurantId),
   })
-  const res = await fetch(
+  const res = await apiFetch(
     `${apiUrl}/api/users/by-telegram/${telegramUserId}/active-order?${params.toString()}`,
   )
   const json = (await res.json()) as ApiResponse<ActiveOrderResponse | null>
@@ -485,7 +501,7 @@ export async function joinWithInviteCode(
   telegramUserId: number,
   inviteCode: string,
 ): Promise<ApiUser> {
-  const res = await fetch(`${apiUrl}/api/auth/join`, {
+  const res = await apiFetch(`${apiUrl}/api/auth/join`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
