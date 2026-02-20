@@ -19,13 +19,13 @@ export function AppBar({ title, right }: { title: string; right?: ReactNode }) {
 }
 
 export function Section({ title, subtitle, children }: {
-  title: string
+  title?: string
   subtitle?: string
   children: ReactNode
 }) {
   return (
     <section className="section">
-      <div className="section-title">{title}</div>
+      {title ? <div className="section-title">{title}</div> : null}
       {subtitle ? <div className="section-subtitle">{subtitle}</div> : null}
       {children}
     </section>

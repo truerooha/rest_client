@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import type { OrderStatus } from '../../lib/types'
 
 type StatusStep = {
@@ -23,7 +24,7 @@ export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps)
   const displayStatus = currentStatus === 'confirmed' ? 'restaurant_confirmed' : currentStatus
   const currentIndex = STATUS_STEPS.findIndex((step) => step.id === displayStatus)
   const isCancelled = currentStatus === 'cancelled'
-  
+
   if (isCancelled) {
     return (
       <div className="status-timeline">
@@ -36,22 +37,44 @@ export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps)
       </div>
     )
   }
-  
+
   return (
     <div className="status-timeline">
-      {STATUS_STEPS.map((step, index) => {
-        const isCompleted = index <= currentIndex
-        const isActive = index === currentIndex
-        
-        return (
-          <div key={step.id} className="status-step">
+      <div className="status-dots-row">
+        {STATUS_STEPS.map((step, index) => {
+          const isCompleted = index <= currentIndex
+          const isActive = index === currentIndex
+
+          return (
+            <Fragment key={step.id}>
+              <div
+                className={`status-dot ${isActive ? 'status-dot-active' : ''}`}
+                style={{
+                  backgroundColor: isCompleted ? 'var(--primary)' : 'var(--gray-light)',
+                }}
+              />
+              {index < STATUS_STEPS.length - 1 ? (
+                <div
+                  className="status-line"
+                  style={{
+                    backgroundColor: isCompleted
+                      ? 'var(--primary)'
+                      : 'var(--gray-light)',
+                  }}
+                />
+              ) : null}
+            </Fragment>
+          )
+        })}
+      </div>
+      <div className="status-labels-row">
+        {STATUS_STEPS.map((step, index) => {
+          const isCompleted = index <= currentIndex
+          const isActive = index === currentIndex
+
+          return (
             <div
-              className={`status-dot ${isActive ? 'status-dot-active' : ''}`}
-              style={{
-                backgroundColor: isCompleted ? 'var(--primary)' : 'var(--gray-light)',
-              }}
-            />
-            <div
+              key={step.id}
               className="status-label"
               style={{
                 color: isCompleted ? 'var(--primary)' : 'var(--text-muted)',
@@ -60,19 +83,9 @@ export function OrderStatusTimeline({ currentStatus }: OrderStatusTimelineProps)
             >
               {step.label}
             </div>
-            {index < STATUS_STEPS.length - 1 ? (
-              <div
-                className="status-line"
-                style={{
-                  backgroundColor: isCompleted
-                    ? 'var(--primary)'
-                    : 'var(--gray-light)',
-                }}
-              />
-            ) : null}
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

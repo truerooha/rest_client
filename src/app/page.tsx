@@ -571,7 +571,7 @@ export default function HomePage() {
       </header>
 
       <div className="page-content">
-        {(activeScreen === 'menu' || activeScreen === 'order') && (
+        {(activeScreen === 'slot' || activeScreen === 'menu' || activeScreen === 'order') && (
           <ContextCard
             rows={[
               { label: 'Офис', value: selectedBuilding?.name ?? '—' },

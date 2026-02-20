@@ -1113,29 +1113,29 @@ a {
   font-weight: 500;
 }
 
-/* Status Timeline */
+/* Status Timeline — two-row layout (dots+lines / labels) */
 .status-timeline {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   padding: 16px 0;
 }
 
-.status-step {
+.status-dots-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  position: relative;
+  gap: 0;
+}
+
+.status-labels-row {
+  display: flex;
 }
 
 .status-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  position: relative;
-  z-index: 1;
+  flex-shrink: 0;
 }
 
 .status-dot-active {
@@ -1145,18 +1145,14 @@ a {
 }
 
 .status-label {
+  flex: 1;
   font-size: 11px;
   text-align: center;
-  white-space: nowrap;
 }
 
 .status-line {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  width: calc(100% + 8px);
+  flex: 1;
   height: 2px;
-  z-index: 0;
 }
 
 .status-cancelled {

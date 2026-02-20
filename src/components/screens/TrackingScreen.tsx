@@ -24,7 +24,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
   
   if (!currentOrder) {
     return (
-      <Section title="Отслеживание заказа">
+      <Section>
         <EmptyState
           emoji="🔍"
           title="Нет активного заказа"
@@ -64,7 +64,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
       : 'default'
 
   return (
-    <Section title="Отслеживание заказа">
+    <Section>
       <StatusBanner
         icon={currentOrder.status === 'cancelled' ? '❗' : '🚚'}
         variant={statusVariant}
