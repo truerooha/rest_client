@@ -54,14 +54,11 @@ export function HistoryScreen() {
   }
   
   return (
-    <div style={{ display: 'grid', gap: 12, padding: '0 16px' }}>
+    <div className="history-list" style={{ padding: '0 16px' }}>
       {orderHistory.map((order) => (
           <Card key={order.id}>
-            <div
-              className="row"
-              style={{ justifyContent: 'space-between', marginBottom: 8 }}
-            >
-              <div style={{ fontWeight: 600 }}>
+            <div className="row-between mb-8">
+              <div className="text-strong">
                 Заказ от {new Date(order.createdAt).toLocaleDateString('ru')}
               </div>
               <Badge style={getStatusStyle(order.status)}>
@@ -69,18 +66,17 @@ export function HistoryScreen() {
               </Badge>
             </div>
             
-            <div className="muted" style={{ marginBottom: 8 }}>
+            <div className="muted mb-8">
               Доставка: {order.deliverySlot}
             </div>
             
             <div className="divider" />
             
-            <div style={{ display: 'grid', gap: 4, fontSize: 14 }}>
+            <div className="items-grid-sm">
               {order.items.map((item) => (
                 <div
                   key={item.item.id}
-                  className="row"
-                  style={{ justifyContent: 'space-between' }}
+                  className="row-between"
                 >
                   <span>
                     {item.item.name} × {item.qty}
@@ -92,7 +88,7 @@ export function HistoryScreen() {
             
             <div className="divider" />
             
-            <div className="row" style={{ justifyContent: 'space-between' }}>
+            <div className="row-between">
               <strong>Итого:</strong>
               <span className="price-summary-total">
                 {formatPrice(order.totalPrice)}

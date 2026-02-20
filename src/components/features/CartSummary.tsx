@@ -26,10 +26,10 @@ export function CartSummary({
   if (cart.length === 0) {
     return (
       <Card>
-        <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🛒</div>
-          <div style={{ fontWeight: 600 }}>Корзина пуста</div>
-          <div className="muted" style={{ marginTop: 4 }}>
+        <div className="empty-card">
+          <div className="empty-card-icon-lg">🛒</div>
+          <div className="text-strong">Корзина пуста</div>
+          <div className="muted mt-4">
             Добавьте блюда из меню
           </div>
         </div>
@@ -44,7 +44,7 @@ export function CartSummary({
           <div key={entry.item.id} className="cart-item">
             <div className="product-image">{entry.item.emoji}</div>
             <div>
-              <div style={{ fontWeight: 600 }}>{entry.item.name}</div>
+              <div className="text-strong">{entry.item.name}</div>
               <div className="muted">{entry.item.unit}</div>
               <div className="price">{formatPrice(entry.item.price)}</div>
             </div>
@@ -58,17 +58,17 @@ export function CartSummary({
       </div>
       <div className="divider" />
       <div className="price-summary">
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">Сумма</span>
           <span>{formatPrice(calculation.subtotal)}</span>
         </div>
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">
             Скидка {ORDER_CONFIG.discountPercent}%
           </span>
           <span>-{formatPrice(calculation.discount)}</span>
         </div>
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">К оплате</span>
           <span className="price-summary-total">{formatPrice(calculation.total)}</span>
         </div>
@@ -79,7 +79,7 @@ export function CartSummary({
           type="button"
           onClick={onCheckout}
           disabled={!isCheckoutAvailable}
-          style={{ marginTop: 12 }}
+          className="mt-12"
         >
           Оформить заказ
         </PrimaryButton>

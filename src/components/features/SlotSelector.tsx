@@ -153,7 +153,7 @@ export function SlotSelector({
               </div>
             )}
             {isActivated && userInLobby && !deadlinePassed && (
-              <div className="slot-activated-inline" style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600 }}>
+              <div className="slot-activated-inline slot-activated-label">
                 Слот активирован — оформите заказ
               </div>
             )}

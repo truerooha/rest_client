@@ -55,34 +55,34 @@ export function OrderCheckout({
 
   return (
     <Card>
-      <div style={{ fontWeight: 600, fontSize: 18 }}>
+      <div className="card-title-inline">
         {hasSbp ? 'Оплата по СБП' : 'Подтверждение заказа'}
       </div>
-      <div className="muted" style={{ marginTop: 4 }}>
+      <div className="muted mt-4">
         Доставка в {selectedSlot}
       </div>
 
       <div className="divider" />
 
       <div className="price-summary">
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">Сумма заказа</span>
           <span>{formatPrice(calculation.subtotal)}</span>
         </div>
         {calculation.discount > 0 ? (
-          <div className="row" style={{ justifyContent: 'space-between' }}>
+          <div className="row-between">
             <span className="order-muted">
               Скидка {ORDER_CONFIG.discountPercent}%
             </span>
-            <span style={{ color: 'var(--success)' }}>
+            <span className="discount-line">
               -{formatPrice(calculation.discount)}
             </span>
           </div>
         ) : null}
         <div className="divider" />
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <span style={{ fontWeight: 600, fontSize: 16 }}>К оплате</span>
-          <strong style={{ fontSize: 20, color: 'var(--primary)' }}>
+        <div className="row-between">
+          <span className="checkout-label">К оплате</span>
+          <strong className="checkout-total">
             {formatPrice(calculation.total)}
           </strong>
         </div>
@@ -121,7 +121,7 @@ export function OrderCheckout({
           <StatusBanner icon="⚠️" variant="warning">
             Оплата по СБП временно недоступна
           </StatusBanner>
-          <div className="order-actions" style={{ marginTop: 8 }}>
+          <div className="order-actions mt-8">
             <SecondaryButton type="button" onClick={onCancel} disabled={isSubmitting}>
               Отменить
             </SecondaryButton>

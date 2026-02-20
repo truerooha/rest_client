@@ -22,28 +22,28 @@ export function GroupOrderCard({
 
   return (
     <Card className="card-soft">
-      <div style={{ fontWeight: 600 }}>Общий заказ офиса</div>
-      <div className="order-muted" style={{ marginTop: 4 }}>
+      <div className="text-strong">Общий заказ офиса</div>
+      <div className="order-muted mt-4">
         Заказ принимается до {deadline}
       </div>
       <div className="divider" />
       <div className="order-summary">
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">Участники</span>
           <strong>{participantCount}</strong>
         </div>
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <span className="order-muted">Общая сумма</span>
           <strong>{totalAmount} ₽</strong>
         </div>
         {minimumAmount ? (
-          <div className="row" style={{ justifyContent: 'space-between' }}>
+          <div className="row-between">
             <span className="order-muted">До минималки</span>
             <strong>{remaining} ₽</strong>
           </div>
         ) : null}
       </div>
-      <div className="order-muted" style={{ marginTop: 8 }}>
+      <div className="order-muted mt-8">
         Доставка будет бесплатной при достижении минимальной суммы
       </div>
     </Card>

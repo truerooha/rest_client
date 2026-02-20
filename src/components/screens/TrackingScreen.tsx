@@ -72,10 +72,10 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
         Статус заказа: {getStatusLabel(currentOrder.status)}
       </StatusBanner>
       <Card>
-        <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>
+        <div className="card-title">
           Ваш заказ
         </div>
-        <div className="muted" style={{ marginBottom: 16 }}>
+        <div className="muted mb-16">
           Доставка в {currentOrder.deliverySlot}
         </div>
         
@@ -85,12 +85,11 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
         
         <div className="divider" />
         
-        <div style={{ display: 'grid', gap: 6 }}>
+        <div className="items-grid">
           {currentOrder.items.map((item) => (
             <div
               key={item.item.id}
-              className="row"
-              style={{ justifyContent: 'space-between', fontSize: 14 }}
+              className="row-between item-line"
             >
               <span>
                 {item.item.name} × {item.qty}
@@ -99,14 +98,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
             </div>
           ))}
           {discount > 0 ? (
-            <div
-              className="row"
-              style={{
-                justifyContent: 'space-between',
-                fontSize: 14,
-                color: 'var(--success)',
-              }}
-            >
+            <div className="row-between item-line discount-line">
               <span>Скидка</span>
               <span>-{formatPrice(discount)}</span>
             </div>
@@ -115,14 +107,14 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
         
         <div className="divider" />
         
-        <div className="row" style={{ justifyContent: 'space-between' }}>
+        <div className="row-between">
           <strong>Итого:</strong>
           <span className="price-summary-total">
             {formatPrice(currentOrder.totalPrice)}
           </span>
         </div>
         {canCancel ? (
-          <div style={{ marginTop: 16 }}>
+          <div className="mt-16">
             <SecondaryButton
               type="button"
               onClick={async () => {

@@ -93,10 +93,10 @@ export function MenuGrid({
       
       {Object.entries(groupedItems).length === 0 ? (
         <Card>
-          <div style={{ textAlign: 'center', padding: '24px 0' }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
-            <div style={{ fontWeight: 600 }}>Ничего не найдено</div>
-            <div className="muted" style={{ marginTop: 4 }}>
+          <div className="empty-card">
+            <div className="empty-card-icon">🔍</div>
+            <div className="text-strong">Ничего не найдено</div>
+            <div className="muted mt-4">
               Попробуйте изменить поисковый запрос
             </div>
           </div>
@@ -104,8 +104,8 @@ export function MenuGrid({
       ) : (
         Object.entries(groupedItems).map(([category, items]) => (
           <Card key={category}>
-            <div className="row" style={{ justifyContent: 'space-between' }}>
-              <div style={{ fontWeight: 600 }}>{category}</div>
+            <div className="row-between">
+              <div className="text-strong">{category}</div>
               <Badge>{items.length}</Badge>
             </div>
             <div className="divider" />
@@ -160,7 +160,7 @@ export function MenuGrid({
                   {item.description ? (
                     <div className="muted product-card-desc">{item.description}</div>
                   ) : null}
-                  <div className="row" style={{ justifyContent: 'space-between' }}>
+                  <div className="row-between">
                     <span className="price">{formatPrice(item.price)}</span>
                     <Badge>{item.unit}</Badge>
                   </div>
