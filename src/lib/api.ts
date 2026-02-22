@@ -44,6 +44,7 @@ type ApiMenuItem = {
   description?: string | null
   category?: string | null
   image_url?: string | null
+  thumbnail_url?: string | null
 }
 
 const slotSchema = z.object({
@@ -141,6 +142,11 @@ export async function fetchMenu(
       ? item.image_url.startsWith('http')
         ? item.image_url
         : `${apiUrl}${item.image_url}`
+      : undefined,
+    thumbnailUrl: item.thumbnail_url
+      ? item.thumbnail_url.startsWith('http')
+        ? item.thumbnail_url
+        : `${apiUrl}${item.thumbnail_url}`
       : undefined,
   }))
 }

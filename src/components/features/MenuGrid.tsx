@@ -113,9 +113,9 @@ export function MenuGrid({
               {items.map((item) => (
                 <div key={item.id} className="product-card">
                   <div className="product-image-wrap">
-                    {item.imageUrl ? (
+                    {(item.thumbnailUrl || item.imageUrl) ? (
                       <img
-                        src={item.imageUrl}
+                        src={item.thumbnailUrl ?? item.imageUrl}
                         alt={item.name}
                         className="product-image-img"
                         loading="lazy"
@@ -130,7 +130,7 @@ export function MenuGrid({
                     <span
                       className="product-image"
                       aria-hidden
-                      style={item.imageUrl ? { display: 'none' } : undefined}
+                      style={(item.thumbnailUrl || item.imageUrl) ? { display: 'none' } : undefined}
                     >
                       {item.emoji}
                     </span>

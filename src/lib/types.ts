@@ -44,6 +44,8 @@ export type MenuItem = {
   emoji: string
   /** URL изображения блюда (опционально, fallback — emoji) */
   imageUrl?: string
+  /** URL миниатюры для сетки меню (400x400) */
+  thumbnailUrl?: string
 }
 
 export type CartItem = {
