@@ -82,7 +82,7 @@ export function OrderCheckout({
         {calculation.serviceFee > 0 ? (
           <div className="row-between">
             <span className="order-muted">
-              Сервисный сбор {ORDER_CONFIG.serviceFeePercent}%
+              Сервисный сбор
             </span>
             <span className="service-fee-line">
               +{formatPrice(calculation.serviceFee)}

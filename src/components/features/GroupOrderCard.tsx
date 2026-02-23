@@ -43,9 +43,6 @@ export function GroupOrderCard({
           </div>
         ) : null}
       </div>
-      <div className="order-muted mt-8">
-        Доставка будет бесплатной при достижении минимальной суммы
-      </div>
     </Card>
   )
 }
