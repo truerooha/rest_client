@@ -34,7 +34,7 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
     )
   }
   
-  const { discount } = calculateOrderTotals(currentOrder.items, 1)
+  const { discount, serviceFee } = calculateOrderTotals(currentOrder.items, 1)
 
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -101,6 +101,12 @@ export function TrackingScreen({ apiUrl }: TrackingScreenProps) {
             <div className="row-between item-line discount-line">
               <span>Скидка</span>
               <span>-{formatPrice(discount)}</span>
+            </div>
+          ) : null}
+          {serviceFee > 0 ? (
+            <div className="row-between item-line service-fee-line">
+              <span>Сервисный сбор</span>
+              <span>+{formatPrice(serviceFee)}</span>
             </div>
           ) : null}
         </div>

@@ -70,6 +70,14 @@ export function CartSummary({
             <span>-{formatPrice(calculation.discount)}</span>
           </div>
         )}
+        {calculation.serviceFee > 0 && (
+          <div className="row-between">
+            <span className="order-muted">
+              Сервисный сбор {ORDER_CONFIG.serviceFeePercent}%
+            </span>
+            <span className="service-fee-line">+{formatPrice(calculation.serviceFee)}</span>
+          </div>
+        )}
         <div className="row-between">
           <span className="order-muted">К оплате</span>
           <span className="price-summary-total">{formatPrice(calculation.total)}</span>

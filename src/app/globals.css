@@ -429,6 +429,9 @@ a {
 .discount-line {
   color: var(--success);
 }
+.service-fee-line {
+  color: var(--hint);
+}
 
 .checkout-label {
   font-weight: 600;
