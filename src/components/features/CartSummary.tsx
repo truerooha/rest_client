@@ -62,12 +62,14 @@ export function CartSummary({
           <span className="order-muted">Сумма</span>
           <span>{formatPrice(calculation.subtotal)}</span>
         </div>
-        <div className="row-between">
-          <span className="order-muted">
-            Скидка {ORDER_CONFIG.discountPercent}%
-          </span>
-          <span>-{formatPrice(calculation.discount)}</span>
-        </div>
+        {calculation.discount > 0 && (
+          <div className="row-between">
+            <span className="order-muted">
+              Скидка {ORDER_CONFIG.discountPercent}%
+            </span>
+            <span>-{formatPrice(calculation.discount)}</span>
+          </div>
+        )}
         <div className="row-between">
           <span className="order-muted">К оплате</span>
           <span className="price-summary-total">{formatPrice(calculation.total)}</span>
