@@ -4,6 +4,20 @@ import { useState, useMemo } from 'react'
 import type { MenuItem, CartItem } from '../../lib/types'
 import { Card, Badge, Chip, SearchBar, Stepper } from '../ui'
 
+/**
+ * Приоритет категорий: 1 — основные блюда, 2 — второстепенное, 3 — напитки/десерты/прочее
+ */
+const CATEGORY_PRIORITY: Record<string, number> = {
+  'Горячие блюда': 1, 'Блюда на гриле': 1, 'Рыбные блюда': 1,
+  'Супы': 1, 'Пицца': 1, 'Паста': 1, 'Ризотто': 1, 'Завтраки': 1,
+  'Салаты': 2, 'Роллы': 2, 'Сэндвичи': 2, 'Закуски': 2, 'Гарниры': 2,
+  'Напитки': 3, 'Десерты': 3,
+}
+
+function getCategoryPriority(category: string): number {
+  return CATEGORY_PRIORITY[category] ?? 3
+}
+
 type MenuGridProps = {
   menuItems: MenuItem[]
   cart: CartItem[]
@@ -29,7 +43,7 @@ export function MenuGrid({
   
   const categories = useMemo(() => {
     const cats = new Set(menuItems.map((item) => item.category || 'Другое'))
-    return Array.from(cats)
+    return Array.from(cats).sort((a, b) => getCategoryPriority(a) - getCategoryPriority(b))
   }, [menuItems])
   
   const filteredItems = useMemo(() => {
@@ -102,7 +116,9 @@ export function MenuGrid({
           </div>
         </Card>
       ) : (
-        Object.entries(groupedItems).map(([category, items]) => (
+        Object.entries(groupedItems)
+          .sort(([a], [b]) => getCategoryPriority(a) - getCategoryPriority(b))
+          .map(([category, items]) => (
           <Card key={category}>
             <div className="row-between">
               <div className="text-strong">{category}</div>
