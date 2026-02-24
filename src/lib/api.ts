@@ -45,6 +45,7 @@ type ApiMenuItem = {
   category?: string | null
   image_url?: string | null
   thumbnail_url?: string | null
+  price_per_100g?: number
 }
 
 const slotSchema = z.object({
@@ -146,7 +147,7 @@ export async function fetchMenu(
     name: item.name,
     description: item.description ?? 'Описание появится позже',
     price: Math.round(item.price),
-    unit: '1 порция',
+    unit: item.price_per_100g ? 'за 100 г' : '1 порция',
     category: item.category ?? 'Другое',
     emoji: categoryEmoji[item.category ?? ''] ?? '🍽️',
     imageUrl: item.image_url
